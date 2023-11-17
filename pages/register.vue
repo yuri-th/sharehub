@@ -61,15 +61,12 @@ export default {
     async saveUserToLaravelApi(firebaseUser) {
       try {
         // LaravelのAPIエンドポイントにユーザー情報を送信
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/share/register",
-          {
-            name: this.name,
-            email: this.email,
-            password: this.password,
-            // 他に保存したい情報があればここに追加
-          }
-        );
+        const response = await axios.post("http://127.0.0.1:8000/api/share/", {
+          name: this.name,
+          email: this.email,
+          firebase_uid: firebaseUser.uid,
+          // 他に保存したい情報があればここに追加
+        });
 
         console.log(response.data); // レスポンスをコンソールに表示（必要に応じて）
       } catch (error) {

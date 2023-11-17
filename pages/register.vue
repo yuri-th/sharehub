@@ -66,6 +66,7 @@ export default {
           {
             name: this.name,
             email: this.email,
+            password: this.password,
             // 他に保存したい情報があればここに追加
           }
         );

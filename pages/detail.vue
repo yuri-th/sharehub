@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="detail">
     <div class="left_contents">
       <NuxtLink to="/" class="link-style">
         <div class="home-icon">
@@ -24,23 +24,28 @@
     <div class="post-list">
       <table>
         <tr>
-          <th>ホーム</th>
+          <th>コメント</th>
         </tr>
         <tr>
           <td>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
             <img src="/images/cross.png" alt="cross-logo" class="cross-logo" />
-            <NuxtLink to="/detail" class="link-style">
-              <img
-                src="/images/detail.png"
-                alt="detail-logo"
-                class="detail-logo"
-              />
-            </NuxtLink>
             <p>message</p>
           </td>
         </tr>
+        <tr>
+          <th>コメント</th>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
       </table>
+      <div class="comment-form">
+        <input type="text" />
+        <div class="comment_button">
+          <button type="submit">コメント</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -84,7 +89,7 @@ export default {
   color: inherit;
 }
 
-.container {
+.detail {
   display: flex;
   color: white;
 }
@@ -160,5 +165,34 @@ td {
   box-sizing: border-box;
   border-right: none; /* 右の線を削除 */
   border-top: none; /* 上の線を削除 */
+}
+
+.comment-form {
+  margin-top: 30px;
+  text-align: center;
+}
+.comment-form input {
+  border: 1px solid white;
+  background-color: transparent;
+  padding: 8px;
+  color: white;
+  outline: none;
+  border-radius: 10px;
+  width: 90%;
+  height: 100px;
+}
+
+.comment_button {
+  width: 95%;
+  text-align: right;
+}
+
+.comment_button button {
+  background: #9400d3;
+  color: white;
+  padding: 10px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-top: 10px;
 }
 </style>

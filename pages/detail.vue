@@ -53,6 +53,9 @@
 <script>
 import firebase from "~/plugins/firebase";
 export default {
+  middleware: "authenticated",
+  meta: { requiresAuth: true },
+
   data() {
     return {
       message: "ログインができておりません",

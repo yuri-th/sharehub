@@ -41,6 +41,13 @@ export default {
       }
 
       try {
+        // データをログに出力（Firebaseユーザー登録前）
+        console.log("Firebaseユーザー登録前のデータ:", {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
+
         // Firebaseでユーザーを登録
         const userCredential = await firebase
           .auth()
@@ -51,6 +58,14 @@ export default {
         await this.saveUserToLaravelApi(user);
 
         // その後の処理を行う（例: ユーザー登録成功のメッセージを表示、リダイレクトなど）
+
+        // データをログに出力（Firebaseユーザー登録後）
+        console.log("Firebaseユーザー登録後のデータ:", {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
+
         this.handleFirebaseRegistration(user);
       } catch (error) {
         console.error("Firebaseユーザー登録エラー:", error.message);

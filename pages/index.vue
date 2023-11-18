@@ -7,12 +7,10 @@
           <p>ホーム</p>
         </div>
       </NuxtLink>
-      <NuxtLink to="/login" class="link-style">
-        <div class="logout-icon">
-          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
-          <p>ログアウト</p>
-        </div>
-      </NuxtLink>
+      <div class="logout-icon" @click="logout">
+        <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+        <p>ログアウト</p>
+      </div>
       <div class="post-form">
         <p>シェア</p>
         <input type="text" />

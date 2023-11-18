@@ -98,6 +98,7 @@ export default {
       // Firebaseユーザー登録後の処理を行う
       // 例: メッセージの表示、リダイレクトなど
       console.log("Firebaseユーザー登録成功:", user);
+      this.$router.push("/login");
     },
   },
 };

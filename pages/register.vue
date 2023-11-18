@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import firebase from "~/plugins/firebase";
 export default {
   layout: "pattern01",

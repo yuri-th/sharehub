@@ -53,6 +53,8 @@ export default {
         this.handleFirebaseRegistration(user);
       } catch (error) {
         console.error("Firebaseユーザー登録エラー:", error.message);
+        console.error("Firebaseユーザー登録エラー:", r.t0.message);
+        console.error("Firebaseからのエラー詳細:", r.t0);
         alert("ユーザー登録に失敗しました。");
       }
     },

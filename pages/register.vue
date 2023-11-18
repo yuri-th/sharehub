@@ -70,7 +70,7 @@ export default {
       } catch (error) {
         console.error(
           "Laravel APIへのユーザー情報保存エラー:",
-          error.response.data
+          error.response ? error.response.data : error.message
         ); // エラーレスポンスをコンソールに表示（必要に応じて）
         throw error; // エラーが発生したら再スロー
       }

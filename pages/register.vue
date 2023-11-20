@@ -81,6 +81,7 @@ export default {
         const response = await axios.post("http://127.0.0.1:8000/api/share/", {
           name: this.name,
           email: this.email,
+          firebase_uid: firebaseUser.uid,
           // 他に保存したい情報があればここに追加
         });
 

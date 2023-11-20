@@ -13,9 +13,9 @@
       </div>
       <div class="post-form">
         <p>シェア</p>
-        <input type="text" />
+        <input type="text" v-model="tweetText" />
         <div class="share_button">
-          <button type="submit">シェアする</button>
+          <button @click="shareTweet">シェアする</button>
         </div>
       </div>
     </div>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import firebase from "~/plugins/firebase";
 export default {
   middleware: "authenticated",
@@ -52,6 +53,7 @@ export default {
   data() {
     return {
       message: "ログインができておりません",
+      tweetText: "",
     };
   },
   created() {
@@ -61,7 +63,22 @@ export default {
       }
     });
   },
+
   methods: {
+    async shareTweet() {
+      try {
+        const response = await axios.post("http://127.0.0.1:8000/api/tweet/", {
+          tweet_text: this.tweetText,
+        });
+
+        // ツイートが正常に投稿された場合の処理
+        console.log(response.data);
+      } catch (error) {
+        // エラー処理
+        console.error(error);
+      }
+    },
+
     logout() {
       firebase
         .auth()

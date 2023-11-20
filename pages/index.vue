@@ -46,6 +46,7 @@
 <script>
 import axios from "axios";
 import firebase from "~/plugins/firebase";
+
 export default {
   middleware: "authenticated",
   meta: { requiresAuth: true },
@@ -56,6 +57,7 @@ export default {
       tweetText: "",
     };
   },
+
   created() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -67,12 +69,24 @@ export default {
   methods: {
     async shareTweet() {
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/tweet/", {
-          tweet_text: this.tweetText,
-        });
+        const user = firebase.auth().currentUser;
 
-        // ツイートが正常に投稿された場合の処理
-        console.log(response.data);
+        if (user) {
+          const idToken = await user.getIdToken();
+
+          const response = await axios.post(
+            "http://127.0.0.1:8000/api/tweet/",
+            {
+              tweet_text: this.tweetText,
+              id_token: idToken, // Firebase ID トークンをリクエストに含める
+            }
+          );
+
+          // ツイートが正常に投稿された場合の処理
+          console.log(response.data);
+        } else {
+          console.error("User not authenticated");
+        }
       } catch (error) {
         // エラー処理
         console.error(error);

@@ -1,22 +1,12 @@
 import firebase from "~/plugins/firebase";
 
-export default async function ({ store, route, redirect }) {
-  // Firebase AuthのonAuthStateChangedを使用してVuexストアを更新
-  await new Promise((resolve) => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        store.commit("setUser", user);
-      } else {
-        store.commit("setUser", null);
-      }
-      resolve();
-    });
-  });
-
+export default function ({ route, redirect }) {
   const requiresAuth = route.meta.some((meta) => meta.requiresAuth);
-  const user = firebase.auth().currentUser;
 
-  if (requiresAuth && !user) {
-    redirect("/login");
-  }
+  // Firebaseのユーザーのログイン状態を監視
+  firebase.auth().onAuthStateChanged((user) => {
+    if (requiresAuth && !user) {
+      redirect("/login");
+    }
+  });
 }

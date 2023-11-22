@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import firebase from "~/plugins/firebase";
 export default {
   layout: "pattern01",
@@ -35,8 +36,18 @@ export default {
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
-        .then(() => {
+        .then((userCredential) => {
+          // ログイン成功時にIDトークンを取得
+          return userCredential.user.getIdToken();
+        })
+        .then((idToken) => {
+          // idTokenをサーバーサイドに送信
+          this.sendTokenToServer(idToken);
+
+          // ログインが完了した旨をユーザーに通知
           alert("ログインが完了しました");
+
+          // ログイン後の画面にリダイレクト
           this.$router.push("/");
         })
         .catch((error) => {
@@ -57,6 +68,19 @@ export default {
               alert("エラーが起きました。しばらくしてから再度お試しください。");
               break;
           }
+        });
+    },
+    sendTokenToServer(idToken) {
+      // サーバーサイドにIDトークンを送信する
+      axios
+        .post("http://127.0.0.1:8000/api/share/", {
+          idToken: idToken,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
         });
     },
   },

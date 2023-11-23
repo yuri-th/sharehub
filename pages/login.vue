@@ -86,6 +86,8 @@ export default {
       // サーバーサイドにIDトークンを送信する
       axios
         .post("http://127.0.0.1:8000/api/login/", {
+          email: this.email, // 追加: email フィールドを送信データに含める
+          password: this.password, // 追加: password フィールドを送信データに含める
           idToken: idToken,
         })
         .then((response) => {

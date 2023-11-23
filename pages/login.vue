@@ -37,6 +37,13 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
+          const user = userCredential.user;
+
+          // ユーザーの情報をログに出力
+          console.log("ユーザーのUID:", user.uid);
+          console.log("ユーザーのメールアドレス:", user.email);
+          console.log("ユーザーの表示名:", user.displayName);
+          console.log("ユーザーの写真のURL:", user.photoURL);
           // ログイン成功時にIDトークンを取得
           return userCredential.user.getIdToken();
         })
@@ -70,28 +77,18 @@ export default {
           }
         });
     },
-    async sendUserDataToServer(user, idToken) {
-      try {
-        console.log("Before axios.post");
-
-        // ユーザー情報をサーバーサイドに送信
-        const response = await axios.post("http://127.0.0.1:8000/api/share/", {
+    sendTokenToServer(idToken) {
+      // サーバーサイドにIDトークンを送信する
+      axios
+        .post("http://127.0.0.1:8000/api/share/", {
           idToken: idToken,
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
         });
-
-        console.log("Before axios.post");
-
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error in axios.post:", error);
-
-        if (error.response && error.response.data) {
-          console.error("Error response data:", error.response.data);
-        }
-      }
     },
   },
 };

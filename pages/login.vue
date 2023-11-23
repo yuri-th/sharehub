@@ -85,7 +85,7 @@ export default {
     sendTokenToServer(idToken) {
       // サーバーサイドにIDトークンを送信する
       axios
-        .post("http://127.0.0.1:8000/api/share/", {
+        .post("http://127.0.0.1:8000/api/login/", {
           idToken: idToken,
         })
         .then((response) => {

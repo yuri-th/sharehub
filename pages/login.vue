@@ -48,17 +48,8 @@ export default {
           alert("ログインが完了しました");
 
           // ログイン後の画面にリダイレクト
-          const currentPath = this.$route.path;
-          if (currentPath !== "/") {
-            this.$router.push("/");
-          }
-          this.$router.push("/").catch((err) => {
-            if (err.name !== "NavigationDuplicated") {
-              throw err;
-            }
-          });
+          this.$router.push("/");
         })
-
         .catch((error) => {
           switch (error.code) {
             case "auth/invalid-email":
@@ -79,23 +70,18 @@ export default {
           }
         });
     },
-    async sendUserDataToServer(user) {
-      try {
-        // ログインユーザーの ID トークンを取得
-        const idToken = await user.getIdToken();
-
-        // ユーザー情報をサーバーサイドに送信
-        const response = await axios.post("http://127.0.0.1:8000/api/share/", {
+    sendTokenToServer(idToken) {
+      // サーバーサイドにIDトークンを送信する
+      axios
+        .post("http://127.0.0.1:8000/api/share/", {
           idToken: idToken,
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
         });
-
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
     },
   },
 };

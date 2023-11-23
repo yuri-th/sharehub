@@ -86,8 +86,7 @@ export default {
 
         console.log(response.data);
       } catch (error) {
-        console.error("Error in sendUserDataToServer:", error);
-        console.error("Error response:", error.response); // 追加
+        console.error("Error in axios.post:", error);
 
         if (error.response && error.response.data) {
           console.error("Error response data:", error.response.data);

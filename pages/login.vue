@@ -72,6 +72,8 @@ export default {
     },
     async sendUserDataToServer(user, idToken) {
       try {
+        console.log("Before axios.post");
+
         // ユーザー情報をサーバーサイドに送信
         const response = await axios.post("http://127.0.0.1:8000/api/share/", {
           idToken: idToken,
@@ -79,6 +81,8 @@ export default {
           email: user.email,
           uid: user.uid,
         });
+
+        console.log("Before axios.post");
 
         console.log(response.data);
       } catch (error) {

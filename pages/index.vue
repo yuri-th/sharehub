@@ -73,11 +73,13 @@ export default {
 
         if (user) {
           const idToken = await user.getIdToken();
+          const uid = currentUser.uid;
 
           const response = await axios.post(
             "http://127.0.0.1:8000/api/tweet/",
             {
               tweet_text: this.tweetText,
+              uid: uid,
               id_token: idToken, // Firebase ID トークンをリクエストに含める
             }
           );

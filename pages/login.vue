@@ -42,8 +42,7 @@ export default {
           // ユーザーの情報をログに出力
           console.log("ユーザーのUID:", user.uid);
           console.log("ユーザーのメールアドレス:", user.email);
-          console.log("ユーザーの表示名:", user.displayName);
-          console.log("ユーザーの写真のURL:", user.photoURL);
+          console.log("ユーザーの表示名:", user.name);
           // ログイン成功時にIDトークンを取得
           return userCredential.user.getIdToken();
         })

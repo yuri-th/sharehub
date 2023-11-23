@@ -82,7 +82,12 @@ export default {
 
         console.log(response.data);
       } catch (error) {
-        console.error(error);
+        console.error("Error in sendUserDataToServer:", error);
+        console.error("Error response:", error.response); // 追加
+
+        if (error.response && error.response.data) {
+          console.error("Error response data:", error.response.data);
+        }
       }
     },
   },

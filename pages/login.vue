@@ -70,18 +70,20 @@ export default {
           }
         });
     },
-    sendTokenToServer(idToken) {
-      // サーバーサイドにIDトークンを送信する
-      axios
-        .post("http://127.0.0.1:8000/api/share/", {
+    async sendUserDataToServer(user, idToken) {
+      try {
+        // ユーザー情報をサーバーサイドに送信
+        const response = await axios.post("http://127.0.0.1:8000/api/share/", {
           idToken: idToken,
-        })
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
         });
+
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };

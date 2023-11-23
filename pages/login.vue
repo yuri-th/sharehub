@@ -84,11 +84,15 @@ export default {
     },
     sendTokenToServer(idToken) {
       // サーバーサイドにIDトークンを送信する
+      if (currentUser) {
+        const uid = currentUser.uid; // UID を取得
+
       axios
         .post("http://127.0.0.1:8000/api/login/", {
           email: this.email, // 追加: email フィールドを送信データに含める
           password: this.password, // 追加: password フィールドを送信データに含める
           idToken: idToken,
+          uid: uid,
         })
         .then((response) => {
           console.log(response.data);

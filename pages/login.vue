@@ -42,13 +42,19 @@ export default {
           // ユーザーの情報をログに出力
           console.log("ユーザーのUID:", user.uid);
           console.log("ユーザーのメールアドレス:", user.email);
-          console.log("ユーザーの表示名:", user.name);
           // ログイン成功時にIDトークンを取得
           return userCredential.user.getIdToken();
         })
         .then((idToken) => {
           // idTokenをサーバーサイドに送信
           this.sendTokenToServer(idToken);
+
+          // ユーザーの詳細な情報を取得
+          const currentUser = firebase.auth().currentUser;
+
+          if (currentUser) {
+            console.log("ユーザーの表示名:", currentUser.displayName);
+          }
 
           // ログインが完了した旨をユーザーに通知
           alert("ログインが完了しました");

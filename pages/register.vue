@@ -52,6 +52,12 @@ export default {
         const userCredential = await firebase
           .auth()
           .createUserWithEmailAndPassword(this.email, this.password);
+
+        // ユーザーに表示名を設定
+        await userCredential.user.updateProfile({
+          displayName: this.name,
+        });
+
         const user = userCredential.user;
 
         // Firebaseユーザー登録が成功したら、Laravel APIを呼び出してユーザー情報を保存
@@ -61,7 +67,7 @@ export default {
 
         // データをログに出力（Firebaseユーザー登録後）
         console.log("Firebaseユーザー登録後のデータ:", {
-          name: this.name,
+          name: user.displayName,
           email: this.email,
           password: this.password,
         });

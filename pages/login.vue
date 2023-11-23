@@ -48,8 +48,17 @@ export default {
           alert("ログインが完了しました");
 
           // ログイン後の画面にリダイレクト
-          this.$router.push("/");
+          const currentPath = this.$route.path;
+          if (currentPath !== "/") {
+            this.$router.push("/");
+          }
+          this.$router.push("/").catch((err) => {
+            if (err.name !== "NavigationDuplicated") {
+              throw err;
+            }
+          });
         })
+
         .catch((error) => {
           switch (error.code) {
             case "auth/invalid-email":

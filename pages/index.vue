@@ -73,7 +73,7 @@ export default {
 
         if (user) {
           const idToken = await user.getIdToken();
-          const uid = currentUser.uid;
+          const uid = user.uid;
 
           const response = await axios.post(
             "http://127.0.0.1:8000/api/tweet/",

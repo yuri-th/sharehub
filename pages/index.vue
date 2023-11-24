@@ -75,7 +75,7 @@ export default {
     async getTweets() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
-        this.tweets = response.data.data; // ツイートデータを更新
+        this.tweets = response.data.data.reverse(); // ツイートデータを逆転して更新
       } catch (error) {
         console.error(error);
       }

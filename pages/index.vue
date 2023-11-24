@@ -67,17 +67,20 @@ export default {
     });
   },
 
-  async asyncData({ $axios }) {
-    try {
-      const response = await $axios.get("http://127.0.0.1:8000/api/tweet");
-      return { tweets: response.data.data };
-    } catch (error) {
-      console.error("Error fetching tweets", error);
-      return { tweets: [] };
-    }
+  async fetch() {
+    await this.getTweets();
   },
 
   methods: {
+    async getTweets() {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/tweet");
+        this.tweets = response.data.data; // ツイートデータを更新
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
     async shareTweet() {
       try {
         const user = firebase.auth().currentUser;

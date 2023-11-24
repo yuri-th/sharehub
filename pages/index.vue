@@ -67,6 +67,11 @@ export default {
     });
   },
 
+  mounted() {
+    // ページがマウントされたときにツイートを取得するロジックを追加
+    this.getTweets();
+  },
+
   methods: {
     async shareTweet() {
       try {

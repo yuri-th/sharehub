@@ -100,6 +100,7 @@ export default {
           // ツイートを取得してデータに追加
           const newTweet = response.data;
           this.tweets.unshift(newTweet); // 新しいツイートを先頭に追加
+          this.$forceUpdate(); // リアクティブな更新をトリガー
         } else {
           console.error("User not authenticated");
         }

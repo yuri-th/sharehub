@@ -24,7 +24,7 @@
         <tr>
           <th>ホーム</th>
         </tr>
-        <tr>
+        <tr v-for="(tweet, index) in tweets" :key="index">
           <td>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
             <img src="/images/cross.png" alt="cross-logo" class="cross-logo" />

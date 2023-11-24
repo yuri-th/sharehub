@@ -24,7 +24,7 @@
         <tr>
           <th>ホーム</th>
         </tr>
-        <tr v-for="(tweet, index) in tweets" :key="index">
+        <tr v-for="tweet in tweets" :key="tweet.id">
           <td>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
             <img src="/images/cross.png" alt="cross-logo" class="cross-logo" />
@@ -35,7 +35,7 @@
                 class="detail-logo"
               />
             </NuxtLink>
-            <p>{{ tweet.tweet_text }}</p>
+            <p>{{ tweet.text }}</p>
           </td>
         </tr>
       </table>
@@ -67,9 +67,14 @@ export default {
     });
   },
 
-  mounted() {
-    // ページがマウントされたときにツイートを取得するロジックを追加
-    this.getTweets();
+  async asyncData({ $axios }) {
+    try {
+      const response = await $axios.get("http://127.0.0.1:8000/api/tweet");
+      return { tweets: response.data.data };
+    } catch (error) {
+      console.error("Error fetching tweets", error);
+      return { tweets: [] };
+    }
   },
 
   methods: {
@@ -86,7 +91,7 @@ export default {
             {
               tweet_text: this.tweetText,
               uid: uid,
-              id_token: idToken, // Firebase ID トークンをリクエストに含める
+              id_token: idToken,
             }
           );
 
@@ -100,15 +105,6 @@ export default {
         }
       } catch (error) {
         // エラー処理
-        console.error(error);
-      }
-    },
-
-    async getTweets() {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/tweet");
-        this.tweets = response.data; // ツイートデータを更新
-      } catch (error) {
         console.error(error);
       }
     },

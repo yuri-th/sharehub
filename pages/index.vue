@@ -35,7 +35,7 @@
                 class="detail-logo"
               />
             </NuxtLink>
-            <p>{{ tweet.text }}</p>
+            <p>{{ tweet.tweet_text }}</p>
           </td>
         </tr>
       </table>

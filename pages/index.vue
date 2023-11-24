@@ -35,7 +35,7 @@
                 class="detail-logo"
               />
             </NuxtLink>
-            <p>message</p>
+            <p>{{ tweet.tweet_text }}</p>
           </td>
         </tr>
       </table>
@@ -55,6 +55,7 @@ export default {
     return {
       message: "ログインができておりません",
       tweetText: "",
+      tweets: [], // ツイートのリストを保持するデータプロパティを追加
     };
   },
 
@@ -86,6 +87,9 @@ export default {
 
           // ツイートが正常に投稿された場合の処理
           console.log(response.data);
+          // ツイートを取得してデータに追加
+          const newTweet = response.data;
+          this.tweets.unshift(newTweet); // 新しいツイートを先頭に追加
         } else {
           console.error("User not authenticated");
         }

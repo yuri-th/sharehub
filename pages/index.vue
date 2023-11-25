@@ -80,6 +80,7 @@ export default {
     async getTweets() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
+        console.log(response.data.data); // ツイートデータの構造をコンソールに出力
         this.tweets = response.data.data.reverse(); // ツイートデータを逆転して更新
       } catch (error) {
         console.error(error);
@@ -117,7 +118,7 @@ export default {
 
     async deleteTweet(tweetId) {
       try {
-        console.log('tweetId:', tweetId); 
+        console.log("tweetId:", tweetId);
         const user = firebase.auth().currentUser;
 
         if (user) {

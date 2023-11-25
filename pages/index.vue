@@ -117,6 +117,7 @@ export default {
 
     async deleteTweet(tweetId) {
       try {
+        console.log('tweetId:', tweetId); 
         const user = firebase.auth().currentUser;
 
         if (user) {

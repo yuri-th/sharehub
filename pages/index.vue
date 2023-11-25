@@ -27,7 +27,12 @@
         <tr v-for="tweet in tweets" :key="tweet.id">
           <td>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
-            <img src="/images/cross.png" alt="cross-logo" class="cross-logo" />
+            <img
+              src="/images/cross.png"
+              alt="cross-logo"
+              class="cross-logo"
+              @click="deleteTweet(tweet.id)"
+            />
             <NuxtLink to="/detail" class="link-style">
               <img
                 src="/images/detail.png"
@@ -99,6 +104,35 @@ export default {
           );
 
           // ツイートが正常に投稿された場合の処理
+          console.log(response.data);
+          await this.getTweets(); // ツイートを再取得
+        } else {
+          console.error("User not authenticated");
+        }
+      } catch (error) {
+        // エラー処理
+        console.error(error);
+      }
+    },
+
+    async deleteTweet(tweetId) {
+      try {
+        const user = firebase.auth().currentUser;
+
+        if (user) {
+          const idToken = await user.getIdToken();
+
+          // ツイート削除のAPIリクエスト
+          const response = await axios.delete(
+            `http://127.0.0.1:8000/api/tweet/${tweetId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${idToken}`,
+              },
+            }
+          );
+
+          // ツイートが正常に削除された場合の処理
           console.log(response.data);
           await this.getTweets(); // ツイートを再取得
         } else {

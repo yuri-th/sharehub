@@ -80,8 +80,16 @@ export default {
     async getTweets() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
+
         // ツイートデータを Vue.js のオブザーバブルから通常の JavaScript オブジェクトに変換
-        const tweets = response.data.data.map((tweet) => tweet.toJSON());
+        const tweets = response.data.data.map((tweet) => {
+          const reactiveTweet = Vue.observable(tweet); // Vue.js 2.x での変換
+          const plainTweet = {};
+          for (const key in reactiveTweet) {
+            plainTweet[key] = reactiveTweet[key];
+          }
+          return plainTweet;
+        });
 
         console.log(tweets); // ツイートデータの構造をコンソールに出力
 

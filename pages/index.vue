@@ -80,8 +80,13 @@ export default {
     async getTweets() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
-        console.log(response.data.data); // ツイートデータの構造をコンソールに出力
-        this.tweets = response.data.data.reverse(); // ツイートデータを逆転して更新
+        // ツイートデータを Vue.js のオブザーバブルから通常の JavaScript オブジェクトに変換
+        const tweets = response.data.data.map((tweet) => tweet.toJSON());
+
+        console.log(tweets); // ツイートデータの構造をコンソールに出力
+
+        // ツイートデータを逆転して更新
+        this.tweets = tweets.reverse();
       } catch (error) {
         console.error(error);
       }

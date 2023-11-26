@@ -134,12 +134,16 @@ export default {
         if (user) {
           const idToken = await user.getIdToken();
 
+          // ユーザーの UID を取得
+          const uid = user.uid;
+
           // ツイート削除のAPIリクエスト
           const response = await axios.delete(
             `http://127.0.0.1:8000/api/tweet/${tweetId}`,
             {
               headers: {
                 Authorization: `Bearer ${idToken}`,
+                "X-User-UID": uid, // ユーザーの UID をヘッダーに追加
               },
             }
           );

@@ -26,6 +26,7 @@
         </tr>
         <tr v-for="tweet in tweets" :key="tweet.id">
           <td>
+            <p>Tweet ID: {{ tweet.id }}</p>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
             <img
               src="/images/cross.png"
@@ -49,7 +50,6 @@
 </template>
 
 <script>
-import Vue from "vue";
 import axios from "axios";
 import firebase from "~/plugins/firebase";
 

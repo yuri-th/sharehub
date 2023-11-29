@@ -88,9 +88,14 @@ export default {
         //   return reactiveTweet.$data;
         // });
 
-        // console.log(tweets); // ツイートデータの構造をコンソールに出力
-        this.tweets = response.data.data;
-        console.log(this.tweets); // ツイートデータの構造をコンソールに出力
+        // レスポンスデータの構造を確認
+        console.log(response.data.data);
+
+        // __ob__ プロパティを取り除いて実際のデータを取得
+        this.tweets = response.data.data.map((item) => {
+          const { __ob__, ...data } = item;
+          return data;
+        });
 
         // ツイートデータを逆転して更新
         this.tweets = this.tweets.reverse();

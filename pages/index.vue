@@ -31,7 +31,7 @@
               src="/images/cross.png"
               alt="cross-logo"
               class="cross-logo"
-              @click="deleteTweet(tweet.$data.id)"
+              @click="deleteTweet(tweet.id)"
             />
             <NuxtLink to="/detail" class="link-style">
               <img

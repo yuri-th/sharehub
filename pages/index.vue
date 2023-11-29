@@ -127,6 +127,7 @@ export default {
     },
 
     async deleteTweet(tweetId) {
+      console.log("deleteTweet method called");
       console.log("tweet in deleteTweet:", tweet);
       console.log("tweetId:", tweet.id);
 

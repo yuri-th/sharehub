@@ -127,13 +127,11 @@ export default {
     },
 
     async deleteTweet(tweetId) {
+      console.log("tweet in deleteTweet:", tweet);
+      console.log("tweetId:", tweet.id);
+
       if (!tweet || !tweet.id) {
         console.error("Invalid tweet data");
-        return;
-      }
-      console.log("tweetId:", tweetId); // ここでの出力を確認
-      if (!tweetId) {
-        console.error("Invalid tweetId");
         return;
       }
 

@@ -131,6 +131,12 @@ export default {
         console.error("Invalid tweet data");
         return;
       }
+      console.log("tweetId:", tweetId); // ここでの出力を確認
+      if (!tweetId) {
+        console.error("Invalid tweetId");
+        return;
+      }
+
       try {
         console.log("tweetId:", tweetId);
         const user = firebase.auth().currentUser;

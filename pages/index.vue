@@ -127,6 +127,10 @@ export default {
     },
 
     async deleteTweet(tweetId) {
+      if (!tweet || !tweet.id) {
+        console.error("Invalid tweet data");
+        return;
+      }
       try {
         console.log("tweetId:", tweetId);
         const user = firebase.auth().currentUser;

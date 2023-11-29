@@ -82,16 +82,18 @@ export default {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
 
-        // ツイートデータを Vue.js のリアクティブオブジェクトに変換
-        const tweets = response.data.data.map((tweet) => {
-          const reactiveTweet = new Vue({ data: tweet });
-          return reactiveTweet.$data;
-        });
+        // // ツイートデータを Vue.js のリアクティブオブジェクトに変換
+        // const tweets = response.data.data.map((tweet) => {
+        //   const reactiveTweet = new Vue({ data: tweet });
+        //   return reactiveTweet.$data;
+        // });
 
-        console.log(tweets); // ツイートデータの構造をコンソールに出力
+        // console.log(tweets); // ツイートデータの構造をコンソールに出力
+        this.tweets = response.data.data;
+        console.log(this.tweets); // ツイートデータの構造をコンソールに出力
 
         // ツイートデータを逆転して更新
-        this.tweets = tweets.reverse();
+        this.tweets = this.tweets.reverse();
       } catch (error) {
         console.error(error);
       }

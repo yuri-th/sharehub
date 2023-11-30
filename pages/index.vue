@@ -154,7 +154,7 @@ export default {
 
           // ツイート削除のAPIリクエスト
           const response = await axios.delete(
-            `http://127.0.0.1:8000/api/tweet/${tweetId}`,
+            `http://127.0.0.1:8000/api/tweet/${tweetId.tweet_id}`,
             {
               headers: {
                 Authorization: `Bearer ${idToken}`,

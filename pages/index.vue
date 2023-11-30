@@ -148,12 +148,6 @@ export default {
       // tweetの中身を確認
       console.log("Tweet Object:", tweetId);
 
-      // 次にtweetId.tweet_idが存在するか確認
-      if (!tweetId.tweet_id) {
-        console.error("Invalid tweet_id");
-        return;
-      }
-
       console.log(
         "API Request URL:",
         `http://127.0.0.1:8000/api/tweet/${tweetId}`

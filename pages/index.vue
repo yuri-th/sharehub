@@ -136,20 +136,23 @@ export default {
     async deleteTweet(tweetId) {
       console.log("deleteTweet method called");
 
-      if (!tweetId || !tweetId.tweet_id) {
+      // 最初にtweetIdが存在するか確認
+      if (!tweetId) {
         console.error("Invalid tweet ID");
         return;
       }
+
+      // 次にtweetId.tweet_idが存在するか確認
+      if (!tweetId.tweet_id) {
+        console.error("Invalid tweet ID");
+        return;
+      }
+
       console.log("tweetId:", tweetId);
       console.log(
         "API Request URL:",
         `http://127.0.0.1:8000/api/tweet/${tweetId.tweet_id}`
       );
-
-      if (!tweetId) {
-        console.error("Invalid tweet ID");
-        return;
-      }
 
       try {
         console.log("tweetId:", tweetId);

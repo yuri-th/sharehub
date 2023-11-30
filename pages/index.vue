@@ -26,7 +26,6 @@
         </tr>
         <tr v-for="tweet in tweets" :key="tweet.tweet_id">
           <td>
-            <p>Tweet ID: {{ tweet.tweet_id }}</p>
             <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
             <img
               src="/images/cross.png"

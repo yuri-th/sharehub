@@ -144,7 +144,7 @@ export default {
 
       // 次にtweetId.tweet_idが存在するか確認
       if (!tweetId.tweet_id) {
-        console.error("Invalid tweet ID");
+        console.error("Invalid tweet_id");
         return;
       }
 

@@ -135,6 +135,7 @@ export default {
 
     async deleteTweet(tweetId) {
       console.log("deleteTweet method called");
+      console.log("tweetId:", tweetId);
 
       // 最初にtweetIdが存在するか確認
       if (!tweetId) {
@@ -142,13 +143,15 @@ export default {
         return;
       }
 
+      // tweetの中身を確認
+      console.log("Tweet Object:", tweetId);
+
       // 次にtweetId.tweet_idが存在するか確認
       if (!tweetId.tweet_id) {
         console.error("Invalid tweet_id");
         return;
       }
 
-      console.log("tweetId:", tweetId);
       console.log(
         "API Request URL:",
         `http://127.0.0.1:8000/api/tweet/${tweetId.tweet_id}`

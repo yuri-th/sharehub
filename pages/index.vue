@@ -143,6 +143,8 @@ export default {
         return;
       }
 
+      console.log("Type of tweetId:", typeof tweetId);
+
       // tweetの中身を確認
       console.log("Tweet Object:", tweetId);
 

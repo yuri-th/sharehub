@@ -26,7 +26,13 @@
         </tr>
         <tr v-for="tweet in tweets" :key="tweet.tweet_id">
           <td>
-            <img src="/images/heart.png" alt="heart-logo" class="heart-logo" />
+            <img
+              src="/images/heart.png"
+              alt="heart-logo"
+              class="heart-logo"
+              @click="likePost"
+            />
+            <span>{{ likeCount }}</span>
             <img
               src="/images/cross.png"
               alt="cross-logo"
@@ -61,6 +67,7 @@ export default {
       message: "ログインができておりません",
       tweetText: "",
       tweets: [], // ツイートのリストを保持するデータプロパティを追加
+      likeCount: 0,
     };
   },
 
@@ -80,12 +87,6 @@ export default {
     async getTweets() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/tweet");
-
-        // // ツイートデータを Vue.js のリアクティブオブジェクトに変換
-        // const tweets = response.data.data.map((tweet) => {
-        //   const reactiveTweet = new Vue({ data: tweet });
-        //   return reactiveTweet.$data;
-        // });
 
         // レスポンスデータの構造を確認
         console.log(response.data.data);
@@ -183,6 +184,47 @@ export default {
         // エラー処理
         console.error(error);
       }
+    },
+
+    async likePost() {
+      let response;
+      try {
+        const user = firebase.auth().currentUser;
+        if (user) {
+          const idToken = await user.getIdToken();
+          const uid = user.uid;
+
+          // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
+          response = await this.$axios.post("http://127.0.0.1:8000/api/like/", {
+            tweet_id: tweetId,
+            uid: uid,
+            id_token: idToken,
+          });
+        } else {
+          console.error("User not authenticated");
+        }
+      } catch (error) {
+        console.error("Error liking post:", error);
+      }
+      if (response) {
+        this.likeCount = response.data.likeCount; // 実際のAPIレスポンスに合わせて取得したデータを設定
+      }
+    },
+
+    async getLikeCount() {
+      try {
+        // バックエンドからいいねの数を取得するAPIエンドポイントを指定
+        const response = await this.$axios.get(
+          "http://127.0.0.1:8000/api/like/"
+        );
+        this.likeCount = response.data.likeCount;
+      } catch (error) {
+        console.error("Error fetching like count:", error);
+      }
+    },
+
+    mounted() {
+      this.getLikeCount();
     },
 
     logout() {

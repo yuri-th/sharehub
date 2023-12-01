@@ -94,6 +94,8 @@ export default {
         // __ob__ プロパティを取り除いて実際のデータを取得
         this.tweets = response.data.data.map((item) => {
           const { __ob__, ...data } = item;
+          data.likeCount = 0; // 各ツイートごとのいいねの数を初期化
+
           return data;
         });
 
@@ -187,7 +189,6 @@ export default {
     },
 
     async likePost(tweetId) {
-      let response;
       try {
         const user = firebase.auth().currentUser;
         if (user) {
@@ -195,19 +196,19 @@ export default {
           const uid = user.uid;
 
           // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
-          response = await this.$axios.post("http://127.0.0.1:8000/api/like/", {
+          await this.$axios.post("http://127.0.0.1:8000/api/like/", {
             tweet_id: tweetId,
             uid: uid,
             id_token: idToken,
           });
+
+          // いいねの数を再取得
+          await this.getLikeCount();
         } else {
           console.error("User not authenticated");
         }
       } catch (error) {
         console.error("Error liking post:", error);
-      }
-      if (response) {
-        this.likeCount = response.data.likeCount; // 実際のAPIレスポンスに合わせて取得したデータを設定
       }
     },
 

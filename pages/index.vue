@@ -30,7 +30,7 @@
               src="/images/heart.png"
               alt="heart-logo"
               class="heart-logo"
-              @click="likePost"
+              @click="likePost(tweet.tweet_id)"
             />
             <span>{{ likeCount }}</span>
             <img
@@ -186,7 +186,7 @@ export default {
       }
     },
 
-    async likePost() {
+    async likePost(tweetId) {
       let response;
       try {
         const user = firebase.auth().currentUser;

@@ -86,21 +86,30 @@ export default {
   methods: {
     async getTweets() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/tweet");
+        const tweetsResponse = await axios.get(
+          "http://127.0.0.1:8000/api/tweet"
+        );
+        const likesResponse = await this.$axios.get(
+          "http://127.0.0.1:8000/api/like/"
+        );
 
         // レスポンスデータの構造を確認
-        console.log(response.data.data);
+        console.log(tweetsResponse.data.data);
+        console.log(likesResponse.data.data);
 
-        // __ob__ プロパティを取り除いて実際のデータを取得
-        this.tweets = response.data.data.map((item) => {
-          const { __ob__, ...data } = item;
-          data.likeCount = 0; // 各ツイートごとのいいねの数を初期化
+        // 各ツイートに対するいいねの数も取得
+        const tweetsWithLikes = tweetsResponse.data.data.map((tweet) => {
+          const { __ob__, ...data } = tweet;
+          data.likeCount = this.getLikeCountForTweet(
+            tweet.tweet_id,
+            likesResponse.data.data
+          ); // 各ツイートに対するいいねの数を取得
 
           return data;
         });
 
         // ツイートデータを逆転して更新
-        this.tweets = this.tweets.reverse();
+        this.tweets = tweetsWithLikes.reverse();
       } catch (error) {
         console.error(error);
       }
@@ -212,22 +221,11 @@ export default {
       }
     },
 
-    async getLikeCount() {
-      try {
-        // バックエンドからいいねの数を取得するAPIエンドポイントを指定
-        const response = await this.$axios.get(
-          "http://127.0.0.1:8000/api/like/"
-        );
-        this.likeCount = response.data.data;
-        // ここで、各ツイートごとにいいねの数を更新
-        this.tweets = this.tweets.map((tweet) =>
-          Object.assign({}, tweet, {
-            likeCount: this.likeCount[tweet.tweet_id] || 0,
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching like count:", error);
-      }
+    getLikeCountForTweet(tweetId, likesData) {
+      const likeDataForTweet = likesData.find(
+        (like) => like.tweet_id === tweetId
+      );
+      return likeDataForTweet ? likeDataForTweet.like_count : 0;
     },
 
     mounted() {

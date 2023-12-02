@@ -32,7 +32,7 @@
               class="heart-logo"
               @click="likePost(tweet.tweet_id)"
             />
-            <span>{{ likeCount }}</span>
+            <span>{{ tweet.likeCount }}</span>
             <img
               src="/images/cross.png"
               alt="cross-logo"
@@ -202,7 +202,7 @@ export default {
             id_token: idToken,
           });
 
-          // いいねの数を再取得
+          // 各ツイートごとにいいねの数を更新
           await this.getLikeCount();
         } else {
           console.error("User not authenticated");
@@ -218,7 +218,13 @@ export default {
         const response = await this.$axios.get(
           "http://127.0.0.1:8000/api/like/"
         );
-        this.likeCount = response.data.likeCount;
+        this.likeCount = response.data.data;
+        // ここで、各ツイートごとにいいねの数を更新
+        this.tweets = this.tweets.map((tweet) =>
+          Object.assign({}, tweet, {
+            likeCount: this.likeCount[tweet.tweet_id] || 0,
+          })
+        );
       } catch (error) {
         console.error("Error fetching like count:", error);
       }

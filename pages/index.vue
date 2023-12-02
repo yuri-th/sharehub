@@ -228,11 +228,8 @@ export default {
         return 0; // もしくは適切なデフォルト値
       }
 
-      const likeDataForTweet = likesData.find(
-        (like) => like.tweet_id === tweetId
-      );
-
-      return likeDataForTweet ? likeDataForTweet.like_count : 0;
+      // likesData オブジェクト内に tweetId があるか確認し、あればその値を返す
+      return likesData[tweetId] || 0;
     },
 
     logout() {

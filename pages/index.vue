@@ -67,6 +67,7 @@ export default {
       message: "ログインができておりません",
       tweetText: "",
       tweets: [], // ツイートのリストを保持するデータプロパティを追加
+      likesData: [],
       likeCount: 0,
     };
   },
@@ -226,10 +227,6 @@ export default {
         (like) => like.tweet_id === tweetId
       );
       return likeDataForTweet ? likeDataForTweet.like_count : 0;
-    },
-
-    mounted() {
-      this.getLikeCount();
     },
 
     logout() {

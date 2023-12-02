@@ -223,9 +223,15 @@ export default {
     },
 
     getLikeCountForTweet(tweetId, likesData) {
+      if (!likesData) {
+        console.error("Likes data is undefined or null");
+        return 0; // もしくは適切なデフォルト値
+      }
+
       const likeDataForTweet = likesData.find(
         (like) => like.tweet_id === tweetId
       );
+
       return likeDataForTweet ? likeDataForTweet.like_count : 0;
     },
 

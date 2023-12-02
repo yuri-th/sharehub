@@ -97,16 +97,16 @@ export default {
         console.log(tweetsResponse.data.data);
         console.log(likesResponse.data.data);
 
-        // 各ツイートに対するいいねの数も取得
-        const tweetsWithLikes = tweetsResponse.data.data.map((tweet) => {
-          const { __ob__, ...data } = tweet;
-          data.likeCount = this.getLikeCountForTweet(
-            tweet.tweet_id,
-            likesResponse.data.data
-          ); // 各ツイートに対するいいねの数を取得
-
-          return data;
-        });
+        const tweetsWithLikes = await Promise.all(
+          tweetsResponse.data.data.map(async (tweet) => {
+            const { __ob__, ...data } = tweet;
+            data.likeCount = await this.getLikeCountForTweet(
+              tweet.tweet_id,
+              likesResponse.data.data
+            );
+            return data;
+          })
+        );
 
         // ツイートデータを逆転して更新
         this.tweets = tweetsWithLikes.reverse();

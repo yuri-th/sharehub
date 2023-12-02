@@ -201,17 +201,6 @@ export default {
             uid: uid,
             id_token: idToken,
           });
-
-          // 各ツイートごとにいいねの数を更新
-          const tweetIndex = this.tweets.findIndex(
-            (t) => t.tweet_id === tweetId
-          );
-          if (tweetIndex !== -1) {
-            this.$set(this.tweets, tweetIndex, {
-              ...this.tweets[tweetIndex],
-              likeCount: this.tweets[tweetIndex].likeCount + 1,
-            });
-          }
         } else {
           console.error("User not authenticated");
         }

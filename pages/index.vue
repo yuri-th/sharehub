@@ -92,9 +92,10 @@ export default {
         console.log(response.data.data);
 
         // __ob__ プロパティを取り除いて実際のデータを取得
-        this.tweets = response.data.data.map((item) => {
+        // 各ツイートに対するいいねの数も取得
+        this.tweets = response.data.data.map(async (item) => {
           const { __ob__, ...data } = item;
-          data.likeCount = 0; // 各ツイートごとのいいねの数を初期化
+          data.likeCount = await this.getLikeCountForTweet(item.tweet_id); // 各ツイートに対するいいねの数を取得
 
           return data;
         });
@@ -188,6 +189,18 @@ export default {
       }
     },
 
+    async getLikeCountForTweet(tweetId) {
+      try {
+        const response = await this.$axios.get(
+          `http://127.0.0.1:8000/api/like/${tweetId}`
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("Error fetching like count for tweet:", error);
+        return 0; // エラー時は 0 を返す（デフォルト値）
+      }
+    },
+
     async likePost(tweetId) {
       try {
         const user = firebase.auth().currentUser;
@@ -201,34 +214,15 @@ export default {
             uid: uid,
             id_token: idToken,
           });
+
+          // 各ツイートごとにいいねの数を更新
+          await this.getTweets();
         } else {
           console.error("User not authenticated");
         }
       } catch (error) {
         console.error("Error liking post:", error);
       }
-    },
-
-    async getLikeCount() {
-      try {
-        // バックエンドからいいねの数を取得するAPIエンドポイントを指定
-        const response = await this.$axios.get(
-          "http://127.0.0.1:8000/api/like/"
-        );
-        this.likeCount = response.data.data;
-        // ここで、各ツイートごとにいいねの数を更新
-        this.tweets = this.tweets.map((tweet) =>
-          Object.assign({}, tweet, {
-            likeCount: this.likeCount[tweet.tweet_id] || 0,
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching like count:", error);
-      }
-    },
-
-    mounted() {
-      this.getLikeCount();
     },
 
     logout() {

@@ -205,6 +205,11 @@ export default {
           const idToken = await user.getIdToken();
           const uid = user.uid;
 
+          // ここで likesResponse を定義する
+          const likesResponse = await this.$axios.get(
+            "http://127.0.0.1:8000/api/like/"
+          );
+
           // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
           await this.$axios.post("http://127.0.0.1:8000/api/like/", {
             tweet_id: tweetId,

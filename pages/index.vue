@@ -213,7 +213,7 @@ export default {
           });
 
           // 各ツイートごとにいいねの数を更新
-          await this.getLikeCountForTweet();
+          await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
         } else {
           console.error("User not authenticated");
         }

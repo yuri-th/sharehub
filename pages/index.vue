@@ -219,6 +219,14 @@ export default {
 
           // 各ツイートごとにいいねの数を更新
           await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
+
+          // 手動でいいねの数を更新
+          const tweetIndex = this.tweets.findIndex(
+            (tweet) => tweet.tweet_id === tweetId
+          );
+          if (tweetIndex !== -1) {
+            this.tweets[tweetIndex].likeCount = updatedLikeCount;
+          }
         } else {
           console.error("User not authenticated");
         }

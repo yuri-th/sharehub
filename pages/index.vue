@@ -240,6 +240,54 @@ export default {
       return likesData[tweetId] || 0;
     },
 
+    async deleteLike(tweetId) {
+      console.log("deleteLike method called");
+      console.log("tweetId:", tweetId);
+
+      // 最初にtweetIdが存在するか確認
+      if (!tweetId) {
+        console.error("Invalid tweet ID");
+        return;
+      }
+
+      console.log(
+        "API Request URL:",
+        `http://127.0.0.1:8000/api/like/${tweetId}`
+      );
+
+      try {
+        console.log("tweetId:", tweetId);
+        const user = firebase.auth().currentUser;
+
+        if (user) {
+          const idToken = await user.getIdToken();
+
+          // ユーザーの UID を取得
+          const uid = user.uid;
+
+          // いいね削除のAPIリクエスト
+          const response = await axios.delete(
+            `http://127.0.0.1:8000/api/like/${tweetId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${idToken}`,
+                "X-User-UID": uid, // ユーザーの UID をヘッダーに追加
+              },
+            }
+          );
+
+          // いいねが正常に削除された場合の処理
+          console.log(response.data);
+          await this.getTweets(); // ツイートを再取得
+        } else {
+          console.error("User not authenticated");
+        }
+      } catch (error) {
+        // エラー処理
+        console.error(error);
+      }
+    },
+
     logout() {
       firebase
         .auth()

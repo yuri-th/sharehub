@@ -223,6 +223,7 @@ export default {
               .delete(`http://127.0.0.1:8000/api/like/${existingLike[0]}`, {
                 headers: {
                   Authorization: `Bearer ${idToken}`,
+                  "X-User-UID": uid,
                 },
               })
               .catch((error) => console.error("DELETE Request Error:", error));

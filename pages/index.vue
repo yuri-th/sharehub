@@ -217,6 +217,8 @@ export default {
             ([key, value]) => key === tweetId.toString() && value.uid === uid
           );
 
+          console.log("existingLike:", existingLike);
+
           if (existingLike) {
             // いいねを削除する
             await this.$axios

@@ -213,14 +213,14 @@ export default {
           console.log("likesResponse.data.data:", likesResponse.data.data);
 
           // ユーザーがすでにいいねをしているか確認
-          const existingLike = likesResponse.data.data.find(
-            (like) => like.tweet_id === tweetId && like.uid === uid
+          const existingLike = Object.entries(likesResponse.data.data).find(
+            ([key, value]) => key === tweetId.toString() && value.uid === uid
           );
 
           if (existingLike) {
             // いいねを削除する
             await this.$axios.delete(
-              `http://127.0.0.1:8000/api/like/${existingLike.like_id}`,
+              `http://127.0.0.1:8000/api/like/${existingLike[0]}`,
               {
                 headers: {
                   Authorization: `Bearer ${idToken}`,

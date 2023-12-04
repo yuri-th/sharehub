@@ -219,14 +219,13 @@ export default {
 
           if (existingLike) {
             // いいねを削除する
-            await this.$axios.delete(
-              `http://127.0.0.1:8000/api/like/${existingLike[0]}`,
-              {
+            await this.$axios
+              .delete(`http://127.0.0.1:8000/api/like/${existingLike[0]}`, {
                 headers: {
                   Authorization: `Bearer ${idToken}`,
                 },
-              }
-            );
+              })
+              .catch((error) => console.error("DELETE Request Error:", error));
           } else {
             // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
             await this.$axios.post("http://127.0.0.1:8000/api/like/", {

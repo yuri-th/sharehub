@@ -210,13 +210,29 @@ export default {
             "http://127.0.0.1:8000/api/like/"
           );
 
-          // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
-          await this.$axios.post("http://127.0.0.1:8000/api/like/", {
-            tweet_id: tweetId,
-            uid: uid,
-            id_token: idToken,
-          });
+          // ユーザーがすでにいいねをしているか確認
+          const existingLike = likesResponse.data.data.find(
+            (like) => like.tweet_id === tweetId && like.uid === uid
+          );
 
+          if (existingLike) {
+            // いいねを削除する
+            await this.$axios.delete(
+              `http://127.0.0.1:8000/api/like/${existingLike.like_id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${idToken}`,
+                },
+              }
+            );
+          } else {
+            // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
+            await this.$axios.post("http://127.0.0.1:8000/api/like/", {
+              tweet_id: tweetId,
+              uid: uid,
+              id_token: idToken,
+            });
+          }
           // 各ツイートごとにいいねの数を更新
           await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
 
@@ -238,54 +254,6 @@ export default {
 
       // likesData オブジェクト内に tweetId があるか確認し、あればその値を返す
       return likesData[tweetId] || 0;
-    },
-
-    async deleteLike(tweetId) {
-      console.log("deleteLike method called");
-      console.log("tweetId:", tweetId);
-
-      // 最初にtweetIdが存在するか確認
-      if (!tweetId) {
-        console.error("Invalid tweet ID");
-        return;
-      }
-
-      console.log(
-        "API Request URL:",
-        `http://127.0.0.1:8000/api/like/${tweetId}`
-      );
-
-      try {
-        console.log("tweetId:", tweetId);
-        const user = firebase.auth().currentUser;
-
-        if (user) {
-          const idToken = await user.getIdToken();
-
-          // ユーザーの UID を取得
-          const uid = user.uid;
-
-          // いいね削除のAPIリクエスト
-          const response = await axios.delete(
-            `http://127.0.0.1:8000/api/like/${tweetId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${idToken}`,
-                "X-User-UID": uid, // ユーザーの UID をヘッダーに追加
-              },
-            }
-          );
-
-          // いいねが正常に削除された場合の処理
-          console.log(response.data);
-          await this.getTweets(); // ツイートを再取得
-        } else {
-          console.error("User not authenticated");
-        }
-      } catch (error) {
-        // エラー処理
-        console.error(error);
-      }
     },
 
     logout() {

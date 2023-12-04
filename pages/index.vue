@@ -210,6 +210,8 @@ export default {
             "http://127.0.0.1:8000/api/like/"
           );
 
+          console.log("likesResponse.data.data:", likesResponse.data.data);
+
           // ユーザーがすでにいいねをしているか確認
           const existingLike = likesResponse.data.data.find(
             (like) => like.tweet_id === tweetId && like.uid === uid

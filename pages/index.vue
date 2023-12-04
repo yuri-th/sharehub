@@ -199,6 +199,8 @@ export default {
     },
 
     async likePost(tweetId) {
+      let updatedLikeCount; // ここで updatedLikeCount を定義する
+
       try {
         const user = firebase.auth().currentUser;
         if (user) {

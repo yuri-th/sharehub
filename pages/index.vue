@@ -228,6 +228,8 @@ export default {
               })
               .catch((error) => console.error("DELETE Request Error:", error));
           } else {
+            console.log("No existing like found. Creating new like.");
+
             // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
             await this.$axios.post("http://127.0.0.1:8000/api/like/", {
               tweet_id: tweetId,
@@ -235,6 +237,8 @@ export default {
               id_token: idToken,
             });
           }
+          console.log("After deleting like");
+
           // 各ツイートごとにいいねの数を更新
           await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
 

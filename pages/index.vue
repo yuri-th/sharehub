@@ -219,6 +219,9 @@ export default {
 
           // 各ツイートごとにいいねの数を更新
           await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
+
+          // ツイートを再取得
+          await this.getTweets();
         } else {
           console.error("User not authenticated");
         }

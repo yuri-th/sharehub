@@ -125,7 +125,7 @@ export default {
 
       console.log("likesData:", likesData);
 
-      const likeInfo = likesData.find((like) => like.tweet_id === tweetId);
+      const likeInfo = likesData[tweetId];
 
       console.log("likeInfo:", likeInfo);
       return likeInfo || { like_count: 0 };

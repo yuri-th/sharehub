@@ -227,9 +227,10 @@ export default {
 
           console.log("likesResponse.data.data:", likesResponse.data.data);
 
-          ユーザーがすでにいいねをしているか確認;
-          const existingLike = Object.entries(likesResponse.data.data).find(
-            ([key, value]) => key === tweetId.toString() && value.uid === uid
+          // いいねのデータ内で user_name と tweet_id を比較して存在を確認
+          const existingLike = Object.values(likesResponse.data.data).find(
+            (like) =>
+              like.users.includes(user_name) && like.tweet_id === tweetId
           );
 
           console.log("existingLike:", existingLike);

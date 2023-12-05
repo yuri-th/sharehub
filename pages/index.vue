@@ -213,11 +213,11 @@ export default {
           console.log("likesResponse.data.data:", likesResponse.data.data);
 
           // ユーザーがすでにいいねをしているか確認
-          const existingLike = Object.entries(likesResponse.data.data).find(
-            ([key, value]) => key === tweetId.toString() && value.uid === uid
-          );
+          // const existingLike = Object.entries(likesResponse.data.data).find(
+          //   ([key, value]) => key === tweetId.toString() && value.uid === uid
+          // );
 
-          console.log("existingLike:", existingLike);
+          // console.log("existingLike:", existingLike);
 
           if (existingLike) {
             // いいねを削除する

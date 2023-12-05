@@ -226,6 +226,9 @@ export default {
             "http://127.0.0.1:8000/api/like/"
           );
 
+          console.log("User Name in Frontend:", user_name);
+          console.log("Likes Data in Frontend:", likesResponse.data.data);
+
           console.log("likesResponse.data.data:", likesResponse.data.data);
 
           // いいねのデータ内で user_name と tweet_id を比較して存在を確認

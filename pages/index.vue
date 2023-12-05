@@ -101,10 +101,11 @@ export default {
         const tweetsWithLikes = await Promise.all(
           tweetsResponse.data.data.map(async (tweet) => {
             const { __ob__, ...data } = tweet;
-            data.likeCount = await this.getLikeCountForTweet(
+            const likeData = await this.getLikeDataForTweet(
               tweet.tweet_id,
               likesResponse.data.data
             );
+            data.likeCount = likeData.like_count;
             return data;
           })
         );
@@ -114,6 +115,16 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+
+    async getLikeDataForTweet(tweetId, likesData) {
+      if (!likesData) {
+        console.error("Likes data is undefined or null");
+        return { like_count: 0 }; // もしくは適切なデフォルト値
+      }
+
+      const likeInfo = likesData.find((like) => like.tweet_id === tweetId);
+      return likeInfo || { like_count: 0 };
     },
 
     async shareTweet() {

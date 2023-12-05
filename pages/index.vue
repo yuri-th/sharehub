@@ -219,6 +219,7 @@ export default {
         if (user) {
           const idToken = await user.getIdToken();
           const uid = user.uid;
+          const user_name = user.displayName;
 
           // ここで likesResponse を定義する
           const likesResponse = await this.$axios.get(

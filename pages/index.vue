@@ -236,7 +236,7 @@ export default {
           const existingLike = Object.values(likesResponse.data.data).find(
             (like) => {
               console.log("like.users:", like.users);
-              console.log("like.id:", like.id);
+              console.log("like.tweet_id:", like.tweet_id);
               return (
                 like.users.includes(user_name) && like.tweet_id === tweetId
               );

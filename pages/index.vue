@@ -227,6 +227,7 @@ export default {
           );
 
           console.log("User Name in Frontend:", user_name);
+          console.log("tweetId:", tweetId);
           console.log("Likes Data in Frontend:", likesResponse.data.data);
 
           console.log("likesResponse.data.data:", likesResponse.data.data);

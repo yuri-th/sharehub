@@ -295,14 +295,19 @@ export default {
         .signOut()
         .then(() => {
           alert("ログアウトが完了しました");
-          // ナビゲーション前に同じルートへのナビゲーションを防ぐ
-          this.$router.push("/").catch((err) => {
-            if (err.name !== "NavigationDuplicated") {
-              throw err;
-            }
-          });
           // ログアウト後のリダイレクト
-          this.$router.replace("/");
+          this.$router.push("/").then(
+            () => {
+              ログアウト成功;
+              // 成功時の処理
+            },
+            (err) => {
+              // エラーハンドリング
+              if (err.name !== "NavigationDuplicated") {
+                throw err;
+              }
+            }
+          );
         });
     },
   },

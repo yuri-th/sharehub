@@ -235,11 +235,10 @@ export default {
           // いいねのデータ内で user_name と tweet_id を比較して存在を確認
           const existingLike = Object.values(likesResponse.data.data).find(
             (like) => {
+              console.log("like:", like); // デバッグ用のログ
               console.log("like.users:", like.users);
-              console.log("like.tweet_id:", like.tweet_id);
-              return (
-                like.users.includes(user_name) && like.tweet_id === tweetId
-              );
+              console.log("like.tweet_id:", like.tweet_id); // 修正
+              return like.users.includes(user_name) && like.tweet_id == tweetId; // 修正
             }
           );
 

@@ -296,18 +296,20 @@ export default {
         .then(() => {
           alert("ログアウトが完了しました");
           // ログアウト後のリダイレクト
-          this.$router.push("/").then(
-            () => {
-              ログアウト成功;
-              // 成功時の処理
-            },
-            (err) => {
-              // エラーハンドリング
-              if (err.name !== "NavigationDuplicated") {
-                throw err;
-              }
-            }
-          );
+          const navigationPromise = this.$router.push("/");
+          if (navigationPromise && navigationPromise.then) {
+            // Promiseがある場合のみthenメソッドを呼び出す
+            navigationPromise
+              .then(() => {
+                "ログアウトが完了";
+              })
+              .catch((err) => {
+                // エラーハンドリング
+                if (err.name !== "NavigationDuplicated") {
+                  throw err;
+                }
+              });
+          }
         });
     },
   },

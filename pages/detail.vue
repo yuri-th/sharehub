@@ -87,9 +87,14 @@ export default {
         this.message = "ログイン済みです";
       }
     });
+
+    console.log("tweetId in created:", this.$route.params.tweetId);
+    this.loadData();
+    console.log("Comments Data:", this.comments);
   },
 
   mounted() {
+    console.log("tweetId in beforeMount:", this.$route.params.tweetId);
     this.loadData();
     console.log("Comments Data:", this.comments);
   },
@@ -323,6 +328,11 @@ export default {
 
           // ツイートが正常に削除された場合の処理
           console.log(response.data);
+
+          // ツイートに関連するコメントといいねも削除する
+          await this.deleteCommentsForTweet(tweetId);
+          await this.deleteLikesForTweet(tweetId);
+
           // ツイートを再取得せずに、インデックスページにリダイレクト
           this.$router.push({ path: "/" });
         } else {
@@ -331,6 +341,28 @@ export default {
       } catch (error) {
         // エラー処理
         console.error(error);
+      }
+    },
+
+    async deleteCommentsForTweet(tweetId) {
+      try {
+        const response = await this.$axios.delete(
+          `http://127.0.0.1:8000/api/comment/?tweet_id=${tweetId}`
+        );
+        console.log("Comments deleted:", response.data);
+      } catch (error) {
+        console.error("Error deleting comments:", error);
+      }
+    },
+
+    async deleteLikesForTweet(tweetId) {
+      try {
+        const response = await this.$axios.delete(
+          `http://127.0.0.1:8000/api/like/?tweet_id=${tweetId}`
+        );
+        console.log("Likes deleted:", response.data);
+      } catch (error) {
+        console.error("Error deleting likes:", error);
       }
     },
     async shareComment(tweetId) {

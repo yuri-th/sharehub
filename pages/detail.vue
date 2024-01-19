@@ -105,7 +105,8 @@ export default {
         const user = firebase.auth().currentUser;
 
         // tweetId の取得
-        const tweetId = this.$route.params.tweetId;
+        const tweetId =
+          this.$route.params.tweetId || localStorage.getItem("storedTweetId");
 
         // ローカルストレージから保存されたデータを取得
         const storedTweet = localStorage.getItem("storedTweet");
@@ -125,15 +126,22 @@ export default {
           await this.getLikeCountForTweet(tweetId);
         }
 
-        // コメントのデータも同様に取得
-        if (!this.comments || this.comments !== storedComments) {
-          await this.getComments();
-        }
+        // コメントのデータも同様に取得;
+        // if (!this.comments || this.comments !== storedComments) {
+        //   await this.getComments();
+        //   this.$nextTick(() => {
+        //     console.log("Comments after next tick:", this.comments);
+        //   });
+        // }
+
+        // コメントのデータも同様に取得;
+        await this.getComments(); // コメントのデータを取得する
 
         // コメントが正しくセットされているか確認
         console.log("Comments:", this.comments);
 
         // 取得したデータをローカルストレージに保存
+        localStorage.setItem("storedTweetId", tweetId);
         localStorage.setItem("storedTweet", JSON.stringify(this.tweet));
         localStorage.setItem("storedLikeCount", this.likeCount);
         localStorage.setItem("storedComments", JSON.stringify(this.comments));
@@ -410,7 +418,7 @@ export default {
         this.comments = commentsResponse.data.data.reverse().map((comment) => ({
           user_name: comment.user_name,
           comment: comment.comment,
-          tweet_id: comment.tweet_id, // ツイートIDも含める
+          tweet_id: comment.tweet_id, 
         }));
 
         console.log(this.comments);

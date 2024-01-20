@@ -411,14 +411,13 @@ export default {
           `http://127.0.0.1:8000/api/comment/?tweet_id=${tweetId}`
         );
 
-        // レスポンスデータの構造を確認
         console.log("commentsResponse:", commentsResponse.data.data);
 
         // コメントデータをtweetsにセット
         this.comments = commentsResponse.data.data.reverse().map((comment) => ({
           user_name: comment.user_name,
           comment: comment.comment,
-          tweet_id: comment.tweet_id, 
+          tweet_id: comment.tweet_id,
         }));
 
         console.log(this.comments);

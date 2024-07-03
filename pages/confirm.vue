@@ -11,7 +11,6 @@ export default {
   layout: "pattern01",
   methods: {
     goToHome() {
-      // ホーム画面への遷移
       this.$router.push("/");
     },
   },

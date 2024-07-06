@@ -6,8 +6,7 @@
     <input
       v-model="password"
       type="password"
-      placeholder="パスワード
-    "
+      placeholder="パスワード"
       required
     />
     <br />
@@ -17,7 +16,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import firebase from "~/plugins/firebase";
 export default {
   layout: "pattern01",
@@ -38,28 +36,18 @@ export default {
         .signInWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
           const user = userCredential.user;
-
-          // ユーザーの情報をログに出力
-          console.log("ユーザーのUID:", user.uid);
-          console.log("ユーザーのメールアドレス:", user.email);
-          // ログイン成功時にIDトークンを取得
           return userCredential.user.getIdToken();
         })
         .then((idToken) => {
           // idTokenをサーバーサイドに送信
           this.sendTokenToServer(idToken);
-
-          // ユーザーの詳細な情報を取得
           const currentUser = firebase.auth().currentUser;
 
           if (currentUser) {
             console.log("ユーザーの表示名:", currentUser.displayName);
           }
 
-          // ログインが完了した旨をユーザーに通知
           alert("ログインが完了しました");
-
-          // ログイン後の画面にリダイレクト
           this.$router.push("/");
         })
         .catch((error) => {
@@ -82,25 +70,26 @@ export default {
           }
         });
     },
-    sendTokenToServer(idToken) {
+    async sendTokenToServer(idToken) {
       const currentUser = firebase.auth().currentUser;
 
       if (currentUser) {
-        const uid = currentUser.uid; // UID を取得
-
-        axios
-          .post("http://127.0.0.1:8000/api/login/", {
-            email: this.email, // 追加: email フィールドを送信データに含める
-            password: this.password, // 追加: password フィールドを送信データに含める
+        const uid = currentUser.uid;
+        try {
+          const response = await this.$axios.post("/login/", {
+            email: this.email,
+            password: this.password,
             idToken: idToken,
             uid: uid,
-          })
-          .then((response) => {
-            console.log(response.data);
-          })
-          .catch((error) => {
-            console.error(error.response.data);
           });
+          console.log(response.data);
+        } catch (error) {
+          if (error.response) {
+            console.error(error.response.data);
+          } else {
+            console.error("An error occurred:", error.message);
+          }
+        }
       }
     },
   },
@@ -133,11 +122,23 @@ h3 {
 }
 
 .login_btn {
-  background: #9400d3;
+  background: #776882;
   color: white;
   padding: 8px 15px;
   border-radius: 20px;
   font-size: 0.8rem;
   margin-top: 10px;
+  border: 1px solid #4b0082;
 }
+
+@media screen and (max-width: 767px) {
+  .login {
+    width: 90%;
+  }
+
+  .login input{
+    width: 90%;
+  }
+}
+
 </style>

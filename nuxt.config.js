@@ -36,12 +36,17 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     "@nuxtjs/axios",
+    '@nuxtjs/dotenv',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: "/",
+    baseURL: process.env.API_BASE_URL || 'http://localhost:3000'
+  },
+
+   // 環境変数の設定
+  env: {
+    apiUrl: process.env.API_BASE_URL || 'http://localhost:3000'
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -50,4 +55,5 @@ export default {
   router: {
     middleware: "authenticated",
   },
+
 };

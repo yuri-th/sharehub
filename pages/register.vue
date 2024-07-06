@@ -41,13 +41,6 @@ export default {
       }
 
       try {
-        // データをログに出力（Firebaseユーザー登録前）
-        console.log("Firebaseユーザー登録前のデータ:", {
-          name: this.name,
-          email: this.email,
-          password: this.password,
-        });
-
         // Firebaseでユーザーを登録
         const userCredential = await firebase
           .auth()
@@ -59,18 +52,7 @@ export default {
         });
 
         const user = userCredential.user;
-
-        // Firebaseユーザー登録が成功したら、Laravel APIを呼び出してユーザー情報を保存
         await this.saveUserToLaravelApi(user);
-
-        // その後の処理を行う（例: ユーザー登録成功のメッセージを表示、リダイレクトなど）
-
-        // データをログに出力（Firebaseユーザー登録後）
-        console.log("Firebaseユーザー登録後のデータ:", {
-          name: user.displayName,
-          email: this.email,
-          password: this.password,
-        });
 
         this.handleFirebaseRegistration(user);
       } catch (error) {
@@ -83,28 +65,18 @@ export default {
 
     async saveUserToLaravelApi(firebaseUser) {
       try {
-        // LaravelのAPIエンドポイントにユーザー情報を送信
         const response = await axios.post("http://127.0.0.1:8000/api/share/", {
           name: this.name,
           email: this.email,
           firebase_uid: firebaseUser.uid,
-          // 他に保存したい情報があればここに追加
         });
-
-        console.log(response.data); // レスポンスをコンソールに表示（必要に応じて）
       } catch (error) {
-        console.error(
-          "Laravel APIへのユーザー情報保存エラー:",
-          error.response ? error.response.data : error.message
-        ); // エラーレスポンスをコンソールに表示（必要に応じて）
-        throw error; // エラーが発生したら再スロー
+        console.error(error.response ? error.response.data : error.message);
+        throw error;
       }
     },
 
     handleFirebaseRegistration(user) {
-      // Firebaseユーザー登録後の処理を行う
-      // 例: メッセージの表示、リダイレクトなど
-      console.log("Firebaseユーザー登録成功:", user);
       this.$router.push("/login");
     },
   },
@@ -137,11 +109,22 @@ h3 {
 }
 
 .register_btn {
-  background: #9400d3;
+  background: #776882;
+  border: 1px solid #4b0082;
   color: white;
   padding: 8px 15px;
   border-radius: 20px;
   font-size: 0.8rem;
   margin-top: 10px;
+}
+
+@media screen and (max-width: 767px) {
+  .register {
+    width: 90%;
+  }
+
+  .register input {
+    width: 90%;
+  }
 }
 </style>

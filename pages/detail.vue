@@ -157,7 +157,15 @@ export default {
         .signOut()
         .then(() => {
           alert("ログアウトが完了しました");
-          this.$router.replace("/");
+          const navigationPromise = this.$router.push("/");
+          if (navigationPromise && navigationPromise.then) {
+            navigationPromise
+              .catch((err) => {
+                if (err.name !== "NavigationDuplicated") {
+                  throw err;
+                }
+              });
+          }
         });
     },
 

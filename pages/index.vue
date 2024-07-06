@@ -237,15 +237,11 @@ export default {
           alert("ログアウトが完了しました");
           const navigationPromise = this.$router.push("/");
           if (navigationPromise && navigationPromise.then) {
-            navigationPromise
-              .then(() => {
-                "ログアウトが完了";
-              })
-              .catch((err) => {
-                if (err.name !== "NavigationDuplicated") {
-                  throw err;
-                }
-              });
+            navigationPromise.catch((err) => {
+              if (err.name !== "NavigationDuplicated") {
+                throw err;
+              }
+            });
           }
         });
     },

@@ -1,4 +1,4 @@
-#SHARE<br>
+## SHARE<br>
 Twitter 風 SNSアプリ(フロントエンド）<br>
 
 ◆Top ページ<br>

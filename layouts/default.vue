@@ -14,7 +14,7 @@
 
 <style scoped>
 .contents_with {
-  background-color: #000033;
+  background-color: #4b0082;
   padding-top: 20px;
   padding-left: 20px;
   box-sizing: border-box;

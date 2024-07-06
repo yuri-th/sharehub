@@ -22,11 +22,12 @@ export default {
   text-align: center;
 }
 .back_btn {
-  background: #9400d3;
+  background: #776882;
   color: white;
   padding: 8px 30px;
   border-radius: 20px;
   font-size: 0.8rem;
   margin-top: 10px;
+  border: 1px solid #4b0082;
 }
 </style>

@@ -1,15 +1,17 @@
 <template>
   <div class="detail">
     <div class="left_contents">
-      <NuxtLink to="/" class="link-style">
-        <div class="home-icon">
-          <img src="/images/home.png" alt="home-logo" class="home-logo" />
-          <p>ホーム</p>
+      <div class="left_contents-btn">
+        <NuxtLink to="/" class="link-style">
+          <div class="home-icon">
+            <img src="/images/home.png" alt="home-logo" class="home-logo" />
+            <p>ホーム</p>
+          </div>
+        </NuxtLink>
+        <div class="logout-icon" @click="logout">
+          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+          <p>ログアウト</p>
         </div>
-      </NuxtLink>
-      <div class="logout-icon" @click="logout">
-        <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
-        <p>ログアウト</p>
       </div>
       <div class="post-form">
         <p>シェア</p>
@@ -86,11 +88,6 @@ export default {
       }
     });
     this.loadData();
-  },
-
-  mounted() {
-    // this.loadData();
-    // this.getComments();
   },
 
   methods: {
@@ -263,9 +260,6 @@ export default {
               "X-User-UID": uid,
             },
           });
-
-          console.log("Tweet deleted:", response.data);
-
           this.$router.push({ path: "/" });
         } else {
           console.error("User not authenticated");
@@ -340,9 +334,8 @@ export default {
 
         // 現在のツイートのコメントのみを this.comments に設定
         this.comments = tweetComments[tweetId] || [];
-        console.log("Parsed comments:", this.comments); // デバッグ用ログ
 
-        // ローカルストレージにすべてのコメントデータを保存する
+        // ローカルストレージにすべてのコメントデータを保存
         localStorage.setItem("storedComments", JSON.stringify(allComments));
       } catch (error) {
         console.error(error);
@@ -437,7 +430,7 @@ export default {
 }
 
 .share_button button {
-  background: #9400d3;
+  background: #776882;
   color: white;
   padding: 10px 10px;
   border-radius: 20px;
@@ -463,13 +456,13 @@ table {
 
 th,
 td {
-  border: 1px solid white; /* セルの線を白で引く */
-  padding: 8px; /* 適切なパディングを追加 */
-  text-align: left; /* セルのテキストを左寄せにする（必要に応じて調整） */
-  color: white; /* テキストの色を白に設定 */
+  border: 1px solid white;
+  padding: 8px;
+  text-align: left;
+  color: white;
   box-sizing: border-box;
-  border-right: none; /* 右の線を削除 */
-  border-top: none; /* 上の線を削除 */
+  border-right: none;
+  border-top: none;
 }
 
 .comment-form {
@@ -493,11 +486,46 @@ td {
 }
 
 .comment_button button {
-  background: #9400d3;
+  background: #776882;
+  border: 1px solid #4b0082;
   color: white;
   padding: 10px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
   margin-top: 10px;
+}
+
+@media screen and (max-width: 767px) {
+  .detail {
+    flex-direction: column-reverse;
+  }
+
+  .left_contents {
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .post-list {
+    width: 95%;
+    margin-top: 40px;
+  }
+
+  .post-form input {
+    width: 90%;
+  }
+
+  th,
+  td {
+    border: 1px solid white;
+  }
+
+  .share_button {
+    width: 90%;
+  }
+
+  .comment-form input {
+    width: 95%;
+  }
 }
 </style>

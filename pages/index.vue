@@ -1,15 +1,17 @@
 <template>
   <div class="container">
     <div class="left_contents">
-      <NuxtLink to="/" class="link-style">
-        <div class="home-icon">
-          <img src="/images/home.png" alt="home-logo" class="home-logo" />
-          <p>ホーム</p>
+      <div class="left_contents-btn">
+        <NuxtLink to="/" class="link-style">
+          <div class="home-icon">
+            <img src="/images/home.png" alt="home-logo" class="home-logo" />
+            <p>ホーム</p>
+          </div>
+        </NuxtLink>
+        <div class="logout-icon" @click="logout">
+          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+          <p>ログアウト</p>
         </div>
-      </NuxtLink>
-      <div class="logout-icon" @click="logout">
-        <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
-        <p>ログアウト</p>
       </div>
       <div class="post-form">
         <p>シェア</p>
@@ -95,12 +97,8 @@ export default {
   methods: {
     async getTweets() {
       try {
-        const tweetsResponse = await this.$axios.get(
-          '/tweet'
-        );
-        const likesResponse = await this.$axios.get(
-          '/like/'
-        );
+        const tweetsResponse = await this.$axios.get("/tweet");
+        const likesResponse = await this.$axios.get("/like/");
 
         const tweetsWithLikes = await Promise.all(
           tweetsResponse.data.data.map(async (tweet) => {
@@ -132,21 +130,14 @@ export default {
     async shareTweet() {
       try {
         const user = firebase.auth().currentUser;
-
         if (user) {
           const idToken = await user.getIdToken();
           const uid = user.uid;
-          const response = await this.$axios.post(
-            '/tweet',
-            {
-              tweet_text: this.tweetText,
-              uid: uid,
-              id_token: idToken,
-            }
-          );
-
-          // ツイートが正常に投稿された場合の処理
-          console.log(response.data);
+          const response = await this.$axios.post("/tweet", {
+            tweet_text: this.tweetText,
+            uid: uid,
+            id_token: idToken,
+          });
           await this.getTweets();
         } else {
           console.error("User not authenticated");
@@ -157,33 +148,31 @@ export default {
     },
 
     async deleteTweet(tweetId) {
-      // 最初にtweetIdが存在するか確認
       if (!tweetId) {
         console.error("Invalid tweet ID");
         return;
       }
-
       try {
         const user = firebase.auth().currentUser;
-
         if (user) {
           const idToken = await user.getIdToken();
           const uid = user.uid;
-          await this.$axios.delete(
-            `/tweet/${tweetId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${idToken}`,
-                "X-User-UID": uid,
-              },
-            }
-          );
+          await this.$axios.delete(`/tweet/${tweetId}`, {
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+              "X-User-UID": uid,
+            },
+          });
           await this.getTweets();
         } else {
           console.error("User not authenticated");
         }
       } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 403) {
+          alert("投稿者以外削除できません");
+        } else {
+          console.error("Error deleting tweet:", error);
+        }
       }
     },
 
@@ -194,10 +183,7 @@ export default {
           const idToken = await user.getIdToken();
           const uid = user.uid;
           const user_name = user.displayName;
-          const likesResponse = await this.$axios.get(
-            '/like'
-          );
-          // いいねのデータ内で user_name と tweet_id を比較して存在を確認
+          const likesResponse = await this.$axios.get("/like");
           const existingLike = Object.entries(likesResponse.data.data).find(
             ([tweetIdKey, like]) => {
               return like.users.includes(user_name) && tweetIdKey == tweetId;
@@ -216,7 +202,7 @@ export default {
           } else {
             console.log("No existing like found. Creating new like.");
 
-            await this.$axios.post('/like', {
+            await this.$axios.post("/like", {
               tweet_id: tweetId,
               uid: uid,
               id_token: idToken,
@@ -320,7 +306,8 @@ export default {
 }
 
 .share_button button {
-  background: #9400d3;
+  background: #776882;
+  border: 1px solid #4b0082;
   color: white;
   padding: 10px 10px;
   border-radius: 20px;
@@ -351,12 +338,42 @@ table {
 
 th,
 td {
-  border: 1px solid white; /* セルの線を白で引く */
-  padding: 8px; /* 適切なパディングを追加 */
-  text-align: left; /* セルのテキストを左寄せにする（必要に応じて調整） */
-  color: white; /* テキストの色を白に設定 */
+  border: 1px solid white;
+  padding: 8px;
+  text-align: left;
+  color: white;
   box-sizing: border-box;
-  border-right: none; /* 右の線を削除 */
-  border-top: none; /* 上の線を削除 */
+  border-right: none;
+  border-top: none;
+}
+
+@media screen and (max-width: 767px) {
+  .container {
+    flex-direction: column-reverse;
+  }
+
+  .left_contents {
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .post-list {
+    width: 95%;
+    margin-top: 40px;
+  }
+
+  .post-form input {
+    width: 90%;
+  }
+
+  th,
+  td {
+    border: 1px solid white;
+  }
+
+  .share_button {
+    width: 90%;
+  }
 }
 </style>

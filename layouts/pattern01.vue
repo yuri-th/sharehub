@@ -20,7 +20,7 @@
 
 <style scoped>
 .contents_with {
-  background-color: #000033;
+  background-color: #4b0082;
   padding: 30px;
   box-sizing: border-box;
   color: white;
@@ -45,5 +45,16 @@
 .header-nav a {
   color: inherit;
   text-decoration: none;
+}
+
+/* メディアクエリ */
+@media screen and (max-width: 767px) {
+  .header-nav {
+    gap: 10px;
+  }
+
+  .header-nav li {
+    font-size: 0.9rem;
+  }
 }
 </style>

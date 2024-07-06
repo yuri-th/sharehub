@@ -1,15 +1,17 @@
 <template>
   <div class="container">
     <div class="left_contents">
-      <NuxtLink to="/" class="link-style">
-        <div class="home-icon">
-          <img src="/images/home.png" alt="home-logo" class="home-logo" />
-          <p>ホーム</p>
+      <div class="left_contents-btn">
+        <NuxtLink to="/" class="link-style">
+          <div class="home-icon">
+            <img src="/images/home.png" alt="home-logo" class="home-logo" />
+            <p>ホーム</p>
+          </div>
+        </NuxtLink>
+        <div class="logout-icon" @click="logout">
+          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+          <p>ログアウト</p>
         </div>
-      </NuxtLink>
-      <div class="logout-icon" @click="logout">
-        <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
-        <p>ログアウト</p>
       </div>
       <div class="post-form">
         <p>シェア</p>
@@ -64,7 +66,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import firebase from "~/plugins/firebase";
 
 export default {
@@ -75,7 +76,7 @@ export default {
     return {
       message: "ログインができておりません",
       tweetText: "",
-      tweets: [], // ツイートのリストを保持するデータプロパティを追加
+      tweets: [],
       likesData: [],
       likeCount: 0,
     };
@@ -96,16 +97,8 @@ export default {
   methods: {
     async getTweets() {
       try {
-        const tweetsResponse = await axios.get(
-          "http://127.0.0.1:8000/api/tweet"
-        );
-        const likesResponse = await this.$axios.get(
-          "http://127.0.0.1:8000/api/like/"
-        );
-
-        // レスポンスデータの構造を確認
-        console.log(tweetsResponse.data.data);
-        console.log(likesResponse.data.data);
+        const tweetsResponse = await this.$axios.get("/tweet");
+        const likesResponse = await this.$axios.get("/like/");
 
         const tweetsWithLikes = await Promise.all(
           tweetsResponse.data.data.map(async (tweet) => {
@@ -128,97 +121,58 @@ export default {
 
     async getLikeDataForTweet(tweetId, likesData) {
       if (!likesData) {
-        console.error("Likes data is undefined or null");
-        return { like_count: 0 }; // もしくは適切なデフォルト値
+        return { like_count: 0 };
       }
-
-      console.log("likesData:", likesData);
-
       const likeInfo = likesData[tweetId];
-
-      console.log("likeInfo:", likeInfo);
       return likeInfo || { like_count: 0 };
     },
 
     async shareTweet() {
       try {
         const user = firebase.auth().currentUser;
-
         if (user) {
           const idToken = await user.getIdToken();
           const uid = user.uid;
-
-          const response = await axios.post(
-            "http://127.0.0.1:8000/api/tweet/",
-            {
-              tweet_text: this.tweetText,
-              uid: uid,
-              id_token: idToken,
-            }
-          );
-
-          // ツイートが正常に投稿された場合の処理
-          console.log(response.data);
-          await this.getTweets(); // ツイートを再取得
+          const response = await this.$axios.post("/tweet", {
+            tweet_text: this.tweetText,
+            uid: uid,
+            id_token: idToken,
+          });
+          await this.getTweets();
         } else {
           console.error("User not authenticated");
         }
       } catch (error) {
-        // エラー処理
         console.error(error);
       }
     },
 
     async deleteTweet(tweetId) {
-      console.log("deleteTweet method called");
-      console.log("tweetId:", tweetId);
-
-      // 最初にtweetIdが存在するか確認
       if (!tweetId) {
         console.error("Invalid tweet ID");
         return;
       }
-
-      console.log("Type of tweetId:", typeof tweetId);
-
-      // tweetの中身を確認
-      console.log("Tweet Object:", tweetId);
-
-      console.log(
-        "API Request URL:",
-        `http://127.0.0.1:8000/api/tweet/${tweetId}`
-      );
-
       try {
-        console.log("tweetId:", tweetId);
         const user = firebase.auth().currentUser;
-
         if (user) {
           const idToken = await user.getIdToken();
-
-          // ユーザーの UID を取得
           const uid = user.uid;
-
-          // ツイート削除のAPIリクエスト
-          const response = await axios.delete(
-            `http://127.0.0.1:8000/api/tweet/${tweetId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${idToken}`,
-                "X-User-UID": uid, // ユーザーの UID をヘッダーに追加
-              },
-            }
-          );
-
-          // ツイートが正常に削除された場合の処理
-          console.log(response.data);
-          await this.getTweets(); // ツイートを再取得
+          await this.$axios.delete(`/tweet/${tweetId}`, {
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+              "X-User-UID": uid,
+            },
+          });
+          await this.getTweets();
         } else {
           console.error("User not authenticated");
         }
       } catch (error) {
-        // エラー処理
-        console.error(error);
+        if (error.response && error.response.status === 403) {
+          alert("投稿者以外削除できません");
+        } else {
+          console.error("Error deleting tweet:", error);
+        }
       }
     },
 
@@ -229,34 +183,16 @@ export default {
           const idToken = await user.getIdToken();
           const uid = user.uid;
           const user_name = user.displayName;
-
-          // ここで likesResponse を定義する
-          const likesResponse = await this.$axios.get(
-            "http://127.0.0.1:8000/api/like/"
-          );
-
-          console.log("User Name in Frontend:", user_name);
-          console.log("tweetId:", tweetId);
-          console.log("Likes Data in Frontend:", likesResponse.data.data);
-
-          console.log("likesResponse.data.data:", likesResponse.data.data);
-
-          // いいねのデータ内で user_name と tweet_id を比較して存在を確認
+          const likesResponse = await this.$axios.get("/like");
           const existingLike = Object.entries(likesResponse.data.data).find(
             ([tweetIdKey, like]) => {
-              console.log("like:", like); // デバッグ用のログ
-              console.log("like.users:", like.users);
-              console.log("like.tweet_id:", tweetIdKey); // tweet_id として扱うキー
-              return like.users.includes(user_name) && tweetIdKey == tweetId; // tweet_id として扱うキー
+              return like.users.includes(user_name) && tweetIdKey == tweetId;
             }
           );
 
-          console.log("existingLike:", existingLike);
-
           if (existingLike) {
-            // いいねを削除する
             await this.$axios
-              .delete(`http://127.0.0.1:8000/api/like/${existingLike[0]}`, {
+              .delete(`/like/${existingLike[0]}`, {
                 headers: {
                   Authorization: `Bearer ${idToken}`,
                   "X-User-UID": uid,
@@ -266,19 +202,16 @@ export default {
           } else {
             console.log("No existing like found. Creating new like.");
 
-            // いいねのボタンがクリックされたときに、バックエンドにいいねの情報を送信する
-            await this.$axios.post("http://127.0.0.1:8000/api/like/", {
+            await this.$axios.post("/like", {
               tweet_id: tweetId,
               uid: uid,
               id_token: idToken,
             });
           }
-          console.log("After deleting like");
 
           // 各ツイートごとにいいねの数を更新
           await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
 
-          // ツイートを再取得
           await this.getTweets();
         } else {
           console.error("User not authenticated");
@@ -291,10 +224,8 @@ export default {
     getLikeCountForTweet(tweetId, likesData) {
       if (!likesData) {
         console.error("Likes data is undefined or null");
-        return 0; // もしくは適切なデフォルト値
+        return 0;
       }
-
-      // likesData オブジェクト内に tweetId があるか確認し、あればその値を返す
       return likesData[tweetId] || 0;
     },
 
@@ -304,20 +235,13 @@ export default {
         .signOut()
         .then(() => {
           alert("ログアウトが完了しました");
-          // ログアウト後のリダイレクト
           const navigationPromise = this.$router.push("/");
           if (navigationPromise && navigationPromise.then) {
-            // Promiseがある場合のみthenメソッドを呼び出す
-            navigationPromise
-              .then(() => {
-                "ログアウトが完了";
-              })
-              .catch((err) => {
-                // エラーハンドリング
-                if (err.name !== "NavigationDuplicated") {
-                  throw err;
-                }
-              });
+            navigationPromise.catch((err) => {
+              if (err.name !== "NavigationDuplicated") {
+                throw err;
+              }
+            });
           }
         });
     },
@@ -378,7 +302,8 @@ export default {
 }
 
 .share_button button {
-  background: #9400d3;
+  background: #776882;
+  border: 1px solid #4b0082;
   color: white;
   padding: 10px 10px;
   border-radius: 20px;
@@ -409,12 +334,42 @@ table {
 
 th,
 td {
-  border: 1px solid white; /* セルの線を白で引く */
-  padding: 8px; /* 適切なパディングを追加 */
-  text-align: left; /* セルのテキストを左寄せにする（必要に応じて調整） */
-  color: white; /* テキストの色を白に設定 */
+  border: 1px solid white;
+  padding: 8px;
+  text-align: left;
+  color: white;
   box-sizing: border-box;
-  border-right: none; /* 右の線を削除 */
-  border-top: none; /* 上の線を削除 */
+  border-right: none;
+  border-top: none;
+}
+
+@media screen and (max-width: 767px) {
+  .container {
+    flex-direction: column-reverse;
+  }
+
+  .left_contents {
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .post-list {
+    width: 95%;
+    margin-top: 40px;
+  }
+
+  .post-form input {
+    width: 90%;
+  }
+
+  th,
+  td {
+    border: 1px solid white;
+  }
+
+  .share_button {
+    width: 90%;
+  }
 }
 </style>

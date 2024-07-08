@@ -28,7 +28,11 @@ JavaScript/Nuxt.js/Vue.js/MySQL/Firebase<br>
 
 ## テーブル設計<br>
 
+<img src="https://github.com/yuri-th/sharehub/assets/117786989/8a029445-75f2-47a2-84cf-ee81d7fa7718" width="589"><br>
+
 ## ER 図<br>
+
+<img src="https://github.com/yuri-th/sharehub/assets/117786989/7b318f05-e53a-4570-aac9-d5c5eec7f5a0" width="589"><br>
 
 ## 環境構築<br>
 

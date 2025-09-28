@@ -1,16 +1,16 @@
 ## SHARE<br>
-Twitter 風 SNSアプリ(フロントエンド）<br>
+Twitter風 つぶやき共有アプリ(フロントエンド）<br>
 
 ◆Top ページ<br>
 <img src="https://github.com/yuri-th/sharehub/assets/117786989/6afe7101-d671-43a1-a5f6-38eb52165610" width="800"><br>
 
 ## 作成の目的
 
-コミュニティ内で気軽につぶやけるアプリを活用して、コミュニケーションの活性化をはかる。
+メンバー間の気軽な情報共有とリアルタイムコミュニケーションを通じて、グループ内の交流を促進する。
 
 ## アプリケーション URL<br>
 
-http://localhost/<br>
+http://localhost:3000<br>
 ※ログインには、名前と email、パスワードでの会員登録が必要です。<br>
 
 ## 他のリポジトリ<br>
@@ -50,5 +50,6 @@ yarn dev<br>
  http://localhost:3000
 
 
-
-##　追記事項<br>
+## 追記事項<br>
+Firebaseアカウントがない場合は以下のリンクから事前に作成が必要。<br>
+https://console.firebase.google.com/

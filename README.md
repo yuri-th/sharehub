@@ -36,15 +36,18 @@ JavaScript/Nuxt.js/Vue.js/MySQL/Firebase<br>
 
 ## 環境構築<br>
 
-1.プロジェクトをコピーしたいディレクトリにて「git clone <https://github.com/yuri-th/sharehub.git>」を行いプロジェクトをコピー<br>
-2.依存関係のインストール
-・「cd sharepj」で.envのあるディレクトリに移動し以下のコマンドを実行。<br>
+1.プロジェクトをコピーしたいディレクトリにて「git clone <https://github.com/yuri-th/sharehub.git>」を行いプロジェクトをコピー。<br>
+2.依存関係のインストール<br>
+「cd sharepj」で.envのあるディレクトリに移動し以下のコマンドを実行。<br>
 npm install<br>
 yarn install<br>
 3.環境変数の設定<br>
-
-
-
+env.example をコピーして .env を作成<br>
+Firebase設定値を入力する。<br>
+4.以下のコマンドで開発サーバの起動<br>
+yarn dev<br>
+5.以下にアクセスしログイン画面が表示されればOK。<br>
+ http://localhost:3000
 
 
 

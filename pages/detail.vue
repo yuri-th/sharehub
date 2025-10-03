@@ -68,12 +68,13 @@
 
 <script>
 import firebase from "~/plugins/firebase";
+import { getAuthHeaders } from "~/utils/auth";
+
 export default {
   middleware: "authenticated",
   meta: { requiresAuth: true },
   data() {
     return {
-      message: "ログインができておりません",
       tweet: null,
       likeCount: 0,
       commentText: "",
@@ -81,54 +82,29 @@ export default {
     };
   },
 
-  created() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.message = "ログイン済みです";
-      }
-    });
-    this.loadData();
+  async mounted() {
+    await this.loadData();
   },
 
   methods: {
     async loadData() {
       try {
-        const user = firebase.auth().currentUser;
-        const tweetId =
-          this.$route.params.tweetId || localStorage.getItem("storedTweetId");
+        const tweetId = this.$route.params.tweetId;
 
-        // ローカルストレージから保存されたデータを取得
-        const storedTweet = localStorage.getItem("storedTweet");
-        const storedLikeCount = localStorage.getItem("storedLikeCount");
-        const storedComments = localStorage.getItem("storedComments");
-
-        // ツイートデータが取得されていない場合、またはローカルストレージのデータと異なる場合のみ取得する
-        if (
-          !this.tweet ||
-          this.tweet.tweet_id !== tweetId ||
-          this.tweet !== storedTweet
-        ) {
-          await this.getTweetData(tweetId);
+        if (!tweetId) {
+          alert("ツイートIDが見つかりません");
+          this.$router.push("/");
+          return;
         }
 
-        if (!this.likeCount || this.likeCount !== storedLikeCount) {
-          await this.getLikeCountForTweet(tweetId);
-        }
-
-        if (!this.comments || this.comments !== storedComments) {
-          await this.getComments(tweetId);
-        }
-
-        console.log("Comments:", this.comments);
-
-        // 取得したデータをローカルストレージに保存
-        localStorage.setItem("storedTweetId", tweetId);
-        localStorage.setItem("storedTweet", JSON.stringify(this.tweet));
-        localStorage.setItem("storedLikeCount", this.likeCount);
-        localStorage.setItem("storedComments", JSON.stringify(this.comments));
+        await Promise.all([
+          this.getTweetData(tweetId),
+          this.getLikeCount(tweetId),
+          this.getComments(tweetId),
+        ]);
       } catch (error) {
         console.error("Error loading data:", error);
-        this.error = "Failed to load data";
+        alert("データの読み込みに失敗しました");
       }
     },
 
@@ -137,17 +113,128 @@ export default {
         const response = await this.$axios.get(`/tweet/${tweetId}`);
         const tweetData = response.data.data;
 
-        if (tweetData && tweetData.tweet_text !== undefined) {
+        if (tweetData) {
           this.tweet = {
+            tweet_id: tweetData.id,
             tweet_text: tweetData.tweet_text,
             user_name: tweetData.user_name,
-            tweet_id: tweetData.id,
           };
-        } else {
-          console.log("Tweet Text not found");
         }
       } catch (error) {
         console.error("Error getting tweet data:", error);
+        throw error;
+      }
+    },
+
+    async getLikeCount(tweetId) {
+      try {
+        const response = await this.$axios.get("/like");
+        const tweetLikeInfo = response.data.data[tweetId];
+        this.likeCount = tweetLikeInfo ? tweetLikeInfo.like_count : 0;
+      } catch (error) {
+        console.error("Error fetching like count:", error);
+        this.likeCount = 0;
+      }
+    },
+
+    async getComments(tweetId) {
+      try {
+        const response = await this.$axios.get(`/comment/?tweet_id=${tweetId}`);
+        this.comments = response.data.data.reverse();
+      } catch (error) {
+        console.error("Error getting comments:", error);
+        this.comments = [];
+      }
+    },
+
+    async likePost() {
+      if (!this.tweet) return;
+
+      try {
+        const { headers } = await getAuthHeaders();
+        const user = firebase.auth().currentUser;
+        const user_name = user.displayName;
+
+        const likesResponse = await this.$axios.get("/like");
+        const existingLike = Object.entries(likesResponse.data.data).find(
+          ([tweetIdKey, like]) => {
+            return (
+              like.users.includes(user_name) &&
+              tweetIdKey == this.tweet.tweet_id
+            );
+          }
+        );
+
+        if (existingLike) {
+          await this.$axios.delete(`/like/${existingLike[0]}`, { headers });
+        } else {
+          await this.$axios.post(
+            "/like",
+            { tweet_id: this.tweet.tweet_id },
+            { headers }
+          );
+        }
+
+        await this.getLikeCount(this.tweet.tweet_id);
+      } catch (error) {
+        console.error("Error liking post:", error);
+        alert("いいね処理に失敗しました");
+      }
+    },
+
+    async deleteTweet() {
+      if (!this.tweet) return;
+
+      if (!confirm("本当に削除しますか？")) {
+        return;
+      }
+
+      try {
+        const { headers } = await getAuthHeaders();
+        await this.$axios.delete(`/tweet/${this.tweet.tweet_id}`, { headers });
+        alert("削除しました");
+        this.$router.push("/");
+      } catch (error) {
+        if (error.response?.status === 403) {
+          alert("投稿者以外削除できません");
+        } else {
+          console.error("Error deleting tweet:", error);
+          alert("削除に失敗しました");
+        }
+      }
+    },
+
+    async shareComment() {
+      if (!this.tweet) return;
+
+      if (!this.commentText.trim()) {
+        alert("コメントを入力してください");
+        return;
+      }
+
+      try {
+        const { headers } = await getAuthHeaders();
+        const user = firebase.auth().currentUser;
+
+        await this.$axios.post(
+          "/comment",
+          {
+            tweet_id: this.tweet.tweet_id,
+            comment: this.commentText,
+          },
+          { headers }
+        );
+
+        // コメントを先頭に追加
+        this.comments.unshift({
+          user_name: user.displayName,
+          comment: this.commentText,
+        });
+
+        this.commentText = "";
+      } catch (error) {
+        console.error("Error sharing comment:", error);
+        alert("コメントの投稿に失敗しました");
       }
     },
 
@@ -156,230 +243,13 @@ export default {
         .auth()
         .signOut()
         .then(() => {
-          alert("ログアウトが完了しました");
-          const navigationPromise = this.$router.push("/");
-          if (navigationPromise && navigationPromise.then) {
-            navigationPromise
-              .catch((err) => {
-                if (err.name !== "NavigationDuplicated") {
-                  throw err;
-                }
-              });
-          }
+          alert("ログアウトしました");
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("ログアウトに失敗しました");
         });
-    },
-
-    async getTweetData(tweetId) {
-      try {
-        console.log("this.$route.params.tweetId:", this.$route.params.tweetId);
-        const response = await this.$axios.get(`/tweet/${tweetId}`);
-        const tweetData = response.data.data;
-
-        if (tweetData && tweetData.tweet_text !== undefined) {
-          this.tweet = {
-            tweet_text: tweetData.tweet_text,
-            user_name: tweetData.user_name,
-            tweet_id: tweetData.id,
-          };
-        } else {
-          console.log("Tweet Text not found");
-        }
-      } catch (error) {
-        console.error("Error getting tweet data:", error);
-      }
-    },
-
-    async likePost(tweetId) {
-      try {
-        console.log("likePost called with tweetId:", tweetId);
-        console.log("tweet:", this.tweet);
-
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          const user_name = user.displayName;
-          const likesResponse = await this.$axios.get("/like");
-          const existingLike = Object.entries(likesResponse.data.data).find(
-            ([tweetIdKey, like]) => {
-              return like.users.includes(user_name) && tweetIdKey == tweetId;
-            }
-          );
-
-          if (existingLike) {
-            await this.$axios
-              .delete(`/like/${existingLike[0]}`, {
-                headers: {
-                  Authorization: `Bearer ${idToken}`,
-                  "X-User-UID": uid,
-                },
-              })
-              .catch((error) => console.error("DELETE Request Error:", error));
-          } else {
-            await this.$axios.post("/like", {
-              tweet_id: tweetId,
-              uid: uid,
-              id_token: idToken,
-            });
-          }
-          await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
-        } else {
-          console.error("User not authenticated");
-        }
-      } catch (error) {
-        console.error("Error liking post:", error);
-      }
-    },
-
-    async getLikeCountForTweet(tweetId) {
-      this.likeCount = await this.fetchLikeCount(tweetId);
-    },
-
-    async fetchLikeCount(tweetId) {
-      try {
-        const likesResponse = await this.$axios.get(`/like`);
-        const tweetLikeInfo = likesResponse.data.data[tweetId];
-
-        if (tweetLikeInfo) {
-          return tweetLikeInfo.like_count;
-        } else {
-          return 0;
-        }
-      } catch (error) {
-        console.error("Error fetching like count:", error);
-        return 0;
-      }
-    },
-
-    async deleteTweet(tweetId) {
-      if (!tweetId) {
-        console.error("Invalid tweet ID");
-        return;
-      }
-
-      try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          const response = await this.$axios.delete(`/tweet/${tweetId}`, {
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-              "X-User-UID": uid,
-            },
-          });
-          this.$router.push({ path: "/" });
-        } else {
-          console.error("User not authenticated");
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 403) {
-          alert("投稿者以外削除できません");
-        } else {
-          console.error("Error deleting tweet:", error);
-        }
-      }
-    },
-
-    // async deleteCommentsForTweet(tweetId) {
-    //   try {
-    //     const user = firebase.auth().currentUser;
-
-    // if (user) {
-    //   const idToken = await user.getIdToken();
-    //   const uid = user.uid;
-
-    //   console.log('Deleting comments for tweetId:', tweetId); // デバッグ用ログ
-
-    //   const response = await this.$axios.delete(`/comment/${tweetId}`, {
-    //     headers: {
-    //       Authorization: `Bearer ${idToken}`,
-    //       "X-User-UID": uid,
-    //     },
-    //   });
-    //   console.log('Comments deleted:', response.data);
-    //   } else {
-    //   console.error("User not authenticated");
-    //   }
-    //   } catch (error) {
-    //     console.error("Error deleting comments:", error);
-    //   }
-    // },
-
-    // async deleteLikesForTweet(tweetId) {
-    //   try {
-    //     const response = await this.$axios.delete(
-    //       `/like/?tweet_id=${tweetId}`
-    //     );
-    //   } catch (error) {
-    //     console.error("Error deleting likes:", error);
-    //   }
-    // },
-
-    async getComments(tweetId) {
-      try {
-        const commentsResponse = await this.$axios.get(
-          `/comment/?tweet_id=${tweetId}`
-        );
-        const allComments = commentsResponse.data.data
-          .reverse()
-          .map((comment) => ({
-            user_name: comment.user_name,
-            comment: comment.comment,
-            tweet_id: comment.tweet_id,
-          }));
-
-        // ツイートごとにコメントを取得
-        const tweetComments = {};
-        allComments.forEach((comment) => {
-          const currentTweetId = comment.tweet_id;
-
-          if (!(currentTweetId in tweetComments)) {
-            tweetComments[currentTweetId] = [];
-          }
-          tweetComments[currentTweetId].push(comment);
-        });
-
-        // 現在のツイートのコメントのみを this.comments に設定
-        this.comments = tweetComments[tweetId] || [];
-
-        // ローカルストレージにすべてのコメントデータを保存
-        localStorage.setItem("storedComments", JSON.stringify(allComments));
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    async shareComment(tweetId) {
-      try {
-        const user = firebase.auth().currentUser;
-
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          const response = await this.$axios.post("/comment", {
-            uid: uid,
-            id_token: idToken,
-            tweet_id: tweetId,
-            comment: this.commentText,
-          });
-
-          // 新しいコメントをthis.commentsに追加
-          const newComment = {
-            user_name: user.displayName,
-            comment: this.commentText,
-            tweet_id: tweetId,
-          };
-          this.comments.unshift(newComment);
-
-          console.log("Comment added:", response.data);
-          this.commentText = "";
-        } else {
-          console.error("User not authenticated");
-        }
-      } catch (error) {
-        console.error(error);
-      }
     },
   },
 };

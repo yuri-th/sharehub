@@ -67,6 +67,7 @@
 
 <script>
 import firebase from "~/plugins/firebase";
+import { getAuthHeaders } from "~/utils/auth";
 
 export default {
   middleware: "authenticated",
@@ -74,20 +75,9 @@ export default {
 
   data() {
     return {
-      message: "ログインができておりません",
       tweetText: "",
       tweets: [],
-      likesData: [],
-      likeCount: 0,
     };
-  },
-
-  created() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.message = "ログイン済みです";
-      }
-    });
   },
 
   async fetch() {
@@ -97,29 +87,27 @@ export default {
   methods: {
     async getTweets() {
       try {
-        const tweetsResponse = await this.$axios.get("/tweet");
-        const likesResponse = await this.$axios.get("/like/");
+        const [tweetsResponse, likesResponse] = await Promise.all([
+          this.$axios.get("/tweet"),
+          this.$axios.get("/like/"),
+        ]);
 
-        const tweetsWithLikes = await Promise.all(
-          tweetsResponse.data.data.map(async (tweet) => {
-            const { __ob__, ...data } = tweet;
-            const likeData = await this.getLikeDataForTweet(
-              tweet.tweet_id,
-              likesResponse.data.data
-            );
-            data.likeCount = likeData.like_count;
-            return data;
-          })
-        );
+        const tweetsWithLikes = tweetsResponse.data.data.map((tweet) => ({
+          ...tweet,
+          likeCount: this.getLikeDataForTweet(
+            tweet.tweet_id,
+            likesResponse.data.data
+          ).like_count,
+        }));
 
-        // ツイートデータを逆転して更新
         this.tweets = tweetsWithLikes.reverse();
       } catch (error) {
         console.error(error);
+        alert("データの取得に失敗しました");
       }
     },
 
-    async getLikeDataForTweet(tweetId, likesData) {
+    getLikeDataForTweet(tweetId, likesData) {
       if (!likesData) {
         return { like_count: 0 };
       }
@@ -129,21 +117,18 @@ export default {
 
     async shareTweet() {
       try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          const response = await this.$axios.post("/tweet", {
-            tweet_text: this.tweetText,
-            uid: uid,
-            id_token: idToken,
-          });
-          await this.getTweets();
-        } else {
-          console.error("User not authenticated");
-        }
+        const { headers } = await getAuthHeaders();
+        await this.$axios.post(
+          "/tweet",
+          { tweet_text: this.tweetText },
+          { headers }
+        );
+
+        this.tweetText = "";
+        await this.getTweets();
       } catch (error) {
         console.error(error);
+        alert("ツイートの投稿に失敗しました");
       }
     },
 
@@ -153,80 +138,44 @@ export default {
         return;
       }
       try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          await this.$axios.delete(`/tweet/${tweetId}`, {
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-              "X-User-UID": uid,
-            },
-          });
-          await this.getTweets();
-        } else {
-          console.error("User not authenticated");
-        }
+        const { headers } = await getAuthHeaders();
+
+        await this.$axios.delete(`/tweet/${tweetId}`, { headers });
+        await this.getTweets();
       } catch (error) {
-        if (error.response && error.response.status === 403) {
+        if (error.response?.status === 403) {
           alert("投稿者以外削除できません");
         } else {
           console.error("Error deleting tweet:", error);
+          alert("削除に失敗しました");
         }
       }
     },
 
     async likePost(tweetId) {
       try {
+        const { headers } = await getAuthHeaders();
         const user = firebase.auth().currentUser;
-        if (user) {
-          const idToken = await user.getIdToken();
-          const uid = user.uid;
-          const user_name = user.displayName;
-          const likesResponse = await this.$axios.get("/like");
-          const existingLike = Object.entries(likesResponse.data.data).find(
-            ([tweetIdKey, like]) => {
-              return like.users.includes(user_name) && tweetIdKey == tweetId;
-            }
-          );
+        const user_name = user.displayName;
 
-          if (existingLike) {
-            await this.$axios
-              .delete(`/like/${existingLike[0]}`, {
-                headers: {
-                  Authorization: `Bearer ${idToken}`,
-                  "X-User-UID": uid,
-                },
-              })
-              .catch((error) => console.error("DELETE Request Error:", error));
-          } else {
-            console.log("No existing like found. Creating new like.");
-
-            await this.$axios.post("/like", {
-              tweet_id: tweetId,
-              uid: uid,
-              id_token: idToken,
-            });
+        const likesResponse = await this.$axios.get("/like");
+        const existingLike = Object.entries(likesResponse.data.data).find(
+          ([tweetIdKey, like]) => {
+            return like.users.includes(user_name) && tweetIdKey == tweetId;
           }
+        );
 
-          // 各ツイートごとにいいねの数を更新
-          await this.getLikeCountForTweet(tweetId, likesResponse.data.data);
-
-          await this.getTweets();
+        if (existingLike) {
+          await this.$axios.delete(`/like/${existingLike[0]}`, { headers });
         } else {
-          console.error("User not authenticated");
+          await this.$axios.post("/like", { tweet_id: tweetId }, { headers });
         }
+
+        await this.getTweets();
       } catch (error) {
         console.error("Error liking post:", error);
+        alert("いいね処理に失敗しました");
       }
-    },
-
-    getLikeCountForTweet(tweetId, likesData) {
-      if (!likesData) {
-        console.error("Likes data is undefined or null");
-        return 0;
-      }
-      return likesData[tweetId] || 0;
     },
 
     logout() {

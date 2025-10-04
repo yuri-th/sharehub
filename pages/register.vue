@@ -18,16 +18,16 @@
 </template>
 
 <script>
-import axios from "axios";
 import firebase from "~/plugins/firebase";
+
 export default {
   layout: "pattern01",
 
   data() {
     return {
-      name: null,
-      email: null,
-      password: null,
+      name: "",
+      email: "",
+      password: "",
     };
   },
 
@@ -46,38 +46,57 @@ export default {
           .auth()
           .createUserWithEmailAndPassword(this.email, this.password);
 
-        // ユーザーに表示名を設定
         await userCredential.user.updateProfile({
           displayName: this.name,
         });
 
         const user = userCredential.user;
+
+        // Laravelにユーザー情報を保存
         await this.saveUserToLaravelApi(user);
 
-        this.handleFirebaseRegistration(user);
+        alert("登録が完了しました");
+        this.$router.push("/login");
       } catch (error) {
-        console.error("Firebaseユーザー登録エラー:", error.message);
-        console.error("Firebaseユーザー登録エラー:", r.t0.message);
-        console.error("Firebaseからのエラー詳細:", r.t0);
-        alert("ユーザー登録に失敗しました。");
+        console.error("ユーザー登録エラー:", error.message);
+
+        if (error.code === "auth/email-already-in-use") {
+          alert("このメールアドレスは既に使用されています。");
+        } else if (error.code === "auth/weak-password") {
+          alert("パスワードは6文字以上で設定してください。");
+        } else if (error.code === "auth/invalid-email") {
+          alert("メールアドレスの形式が正しくありません。");
+        } else {
+          alert("ユーザー登録に失敗しました。");
+        }
       }
     },
 
     async saveUserToLaravelApi(firebaseUser) {
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/share/", {
-          name: this.name,
-          email: this.email,
-          firebase_uid: firebaseUser.uid,
-        });
+        const idToken = await firebaseUser.getIdToken();
+        const uid = firebaseUser.uid;
+
+        await this.$axios.post(
+          "/share",
+          {
+            name: this.name,
+            email: this.email,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+              "X-User-UID": uid,
+            },
+          }
+        );
       } catch (error) {
-        console.error(error.response ? error.response.data : error.message);
+        console.error(
+          "Laravel登録エラー:",
+          error.response?.data || error.message
+        );
         throw error;
       }
-    },
-
-    handleFirebaseRegistration(user) {
-      this.$router.push("/login");
     },
   },
 };

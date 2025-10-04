@@ -17,79 +17,56 @@
 
 <script>
 import firebase from "~/plugins/firebase";
+import { getAuthHeaders } from "~/utils/auth";
+
 export default {
   layout: "pattern01",
+
   data() {
     return {
-      email: null,
-      password: null,
+      email: "",
+      password: "",
     };
   },
+
   methods: {
-    login() {
+    async login() {
       if (!this.email || !this.password) {
         alert("メールアドレスまたはパスワードが入力されていません。");
         return;
       }
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          return userCredential.user.getIdToken();
-        })
-        .then((idToken) => {
-          // idTokenをサーバーサイドに送信
-          this.sendTokenToServer(idToken);
-          const currentUser = firebase.auth().currentUser;
 
-          if (currentUser) {
-            console.log("ユーザーの表示名:", currentUser.displayName);
-          }
+      try {
+        await firebase
+          .auth()
+          .signInWithEmailAndPassword(this.email, this.password);
 
-          alert("ログインが完了しました");
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          switch (error.code) {
-            case "auth/invalid-email":
-              alert("メールアドレスの形式が違います。");
-              break;
-            case "auth/user-disabled":
-              alert("ユーザーが無効になっています。");
-              break;
-            case "auth/user-not-found":
-              alert("ユーザーが存在しません。");
-              break;
-            case "auth/wrong-password":
-              alert("パスワードが間違っております。");
-              break;
-            default:
-              alert("エラーが起きました。しばらくしてから再度お試しください。");
-              break;
-          }
-        });
+        await this.sendUserToServer();
+
+        alert("ログインが完了しました");
+        this.$router.push("/");
+      } catch (error) {}
     },
-    async sendTokenToServer(idToken) {
-      const currentUser = firebase.auth().currentUser;
 
-      if (currentUser) {
-        const uid = currentUser.uid;
-        try {
-          const response = await this.$axios.post("/login/", {
-            email: this.email,
-            password: this.password,
-            idToken: idToken,
-            uid: uid,
-          });
-          console.log(response.data);
-        } catch (error) {
-          if (error.response) {
-            console.error(error.response.data);
-          } else {
-            console.error("An error occurred:", error.message);
-          }
-        }
+    async sendUserToServer() {
+      try {
+        const { headers } = await getAuthHeaders();
+        const currentUser = firebase.auth().currentUser;
+        const userName =
+          currentUser.displayName ||
+          currentUser.email.split("@")[0] ||
+          "ユーザー";
+
+        await this.$axios.post(
+          "/login",
+          {
+            email: currentUser.email,
+            name: userName,
+          },
+          { headers }
+        );
+      } catch (error) {
+        console.error("サーバーエラー:", error.response?.data);
       }
     },
   },
@@ -136,9 +113,8 @@ h3 {
     width: 90%;
   }
 
-  .login input{
+  .login input {
     width: 90%;
   }
 }
-
 </style>

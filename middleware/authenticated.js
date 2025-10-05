@@ -1,4 +1,4 @@
-import firebase from "~/plugins/firebase";
+import firebase from 'firebase/app'
 
 export default function ({ route, redirect }) {
   const requiresAuth = route.meta.some((meta) => meta.requiresAuth);

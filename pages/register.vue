@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import firebase from "~/plugins/firebase";
+import firebase from "firebase/app";
 
 export default {
   layout: "pattern01",

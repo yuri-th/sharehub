@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import firebase from "~/plugins/firebase";
+import firebase from "firebase/app";
 import { getAuthHeaders } from "~/utils/auth";
 
 export default {

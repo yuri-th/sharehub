@@ -1,15 +1,15 @@
 import firebase from "firebase";
 import "firebase/auth";
 
-if (!firebase.apps.length) {
-  firebase.initializeApp({
-    apiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
-  })
-}
+export default (context, inject) => {
+  const { $config } = context;
 
-export default firebase
+  if (!firebase.apps.length && $config.firebase) {
+    firebase.initializeApp($config.firebase);
+  }
+
+  // firebaseオブジェクトをVueインスタンスに注入
+  inject("firebase", firebase);
+};
+
+export { firebase };

@@ -1,4 +1,4 @@
-import firebase from "~/plugins/firebase";
+import firebase from "firebase/app";
 
 /**
  * 認証ヘッダーを取得

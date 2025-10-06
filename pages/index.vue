@@ -41,16 +41,7 @@
               class="cross-logo"
               @click="deleteTweet(tweet.tweet_id)"
             />
-            <NuxtLink
-              :to="{
-                name: 'detail',
-                params: {
-                  tweetId: tweet.tweet_id,
-                  likeCount: tweet.likeCount,
-                },
-              }"
-              class="link-style"
-            >
+            <NuxtLink :to="`/detail/${tweet.tweet_id}`" class="link-style">
               <img
                 src="/images/detail.png"
                 alt="detail-logo"

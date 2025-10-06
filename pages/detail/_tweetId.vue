@@ -13,13 +13,13 @@
           <p>ログアウト</p>
         </div>
       </div>
-      <div class="post-form">
+      <!-- <div class="post-form">
         <p>シェア</p>
         <input type="text" />
         <div class="share_button">
           <button type="submit">シェアする</button>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="post-list">
       <table>
@@ -32,14 +32,14 @@
               src="/images/heart.png"
               alt="heart-logo"
               class="heart-logo"
-              @click="likePost(tweet.tweet_id)"
+              @click="likePost()"
             />
             <span v-if="tweet !== null">{{ likeCount ?? 0 }}</span>
             <img
               src="/images/cross.png"
               alt="cross-logo"
               class="cross-logo"
-              @click="deleteTweet(tweet.tweet_id)"
+              @click="deleteTweet()"
             />
             <p v-if="tweet && tweet.user_name && tweet.tweet_text">
               {{ tweet.user_name }}:{{ tweet.tweet_text }}
@@ -59,7 +59,7 @@
       <div class="comment-form">
         <input type="text" v-model="commentText" />
         <div class="comment_button">
-          <button @click="shareComment(tweet.tweet_id)">コメント</button>
+          <button @click="shareComment()">コメント</button>
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import firebase from 'firebase/app'
+import firebase from "firebase/app";
 import { getAuthHeaders } from "~/utils/auth";
 
 export default {
@@ -291,7 +291,7 @@ export default {
   width: 30px;
 }
 
-.post-form input {
+/* .post-form input {
   border: 1px solid white;
   background-color: transparent;
   padding: 8px;
@@ -300,9 +300,9 @@ export default {
   border-radius: 10px;
   width: 80%;
   height: 100px;
-}
+} */
 
-.share_button {
+/* .share_button {
   width: 85%;
   text-align: right;
 }
@@ -314,7 +314,7 @@ export default {
   border-radius: 20px;
   font-size: 0.8rem;
   margin-top: 10px;
-}
+} */
 
 .post-list {
   margin-top: -65px;
@@ -389,18 +389,18 @@ td {
     margin-top: 40px;
   }
 
-  .post-form input {
+  /* .post-form input {
     width: 90%;
-  }
+  } */
 
   th,
   td {
     border: 1px solid white;
   }
 
-  .share_button {
+  /* .share_button {
     width: 90%;
-  }
+  } */
 
   .comment-form input {
     width: 95%;

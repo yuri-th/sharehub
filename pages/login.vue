@@ -1,23 +1,24 @@
 <template>
   <div class="login">
     <h3>ログイン</h3>
-    <input v-model="email" type="email" placeholder="メールアドレス" required />
-    <br />
+    <input v-model="email" type="email" placeholder="メールアドレス" required>
+    <br>
     <input
       v-model="password"
       type="password"
       placeholder="パスワード"
       required
-    />
-    <br />
-    <button @click="login" class="login_btn">ログイン</button>
-    <br />
+    >
+    <br>
+    <button class="login_btn" @click="login">
+      ログイン
+    </button>
+    <br>
   </div>
 </template>
 
 <script>
 import firebase from "firebase/app";
-import { getAuthHeaders } from "~/utils/auth";
 
 export default {
   layout: "pattern01",
@@ -35,14 +36,11 @@ export default {
         alert("メールアドレスまたはパスワードが入力されていません。");
         return;
       }
-
       try {
         await firebase
           .auth()
           .signInWithEmailAndPassword(this.email, this.password);
-
         await this.sendUserToServer();
-
         alert("ログインが完了しました");
         this.$router.push("/");
       } catch (error) {}
@@ -50,21 +48,15 @@ export default {
 
     async sendUserToServer() {
       try {
-        const { headers } = await getAuthHeaders();
         const currentUser = firebase.auth().currentUser;
         const userName =
           currentUser.displayName ||
           currentUser.email.split("@")[0] ||
           "ユーザー";
-
-        await this.$axios.post(
-          "/login",
-          {
-            email: currentUser.email,
-            name: userName,
-          },
-          { headers }
-        );
+        await this.$axios.post("/login", {
+          email: currentUser.email,
+          name: userName,
+        });
       } catch (error) {
         console.error("サーバーエラー:", error.response?.data);
       }

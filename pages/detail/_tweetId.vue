@@ -4,22 +4,15 @@
       <div class="left_contents-btn">
         <NuxtLink to="/" class="link-style">
           <div class="home-icon">
-            <img src="/images/home.png" alt="home-logo" class="home-logo" />
+            <img src="/images/home.png" alt="home-logo" class="home-logo">
             <p>ホーム</p>
           </div>
         </NuxtLink>
         <div class="logout-icon" @click="logout">
-          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+          <img src="/images/logout.png" alt="logout-logo" class="logout-logo">
           <p>ログアウト</p>
         </div>
       </div>
-      <!-- <div class="post-form">
-        <p>シェア</p>
-        <input type="text" />
-        <div class="share_button">
-          <button type="submit">シェアする</button>
-        </div>
-      </div> -->
     </div>
     <div class="post-list">
       <table>
@@ -33,18 +26,20 @@
               alt="heart-logo"
               class="heart-logo"
               @click="likePost()"
-            />
+            >
             <span v-if="tweet !== null">{{ likeCount ?? 0 }}</span>
             <img
               src="/images/cross.png"
               alt="cross-logo"
               class="cross-logo"
               @click="deleteTweet()"
-            />
+            >
             <p v-if="tweet && tweet.user_name && tweet.tweet_text">
               {{ tweet.user_name }}:{{ tweet.tweet_text }}
             </p>
-            <p v-else>No tweet data available.</p>
+            <p v-else>
+              No tweet data available.
+            </p>
           </td>
         </tr>
         <tr>
@@ -57,9 +52,11 @@
         </tr>
       </table>
       <div class="comment-form">
-        <input type="text" v-model="commentText" />
+        <input v-model="commentText" type="text">
         <div class="comment_button">
-          <button @click="shareComment()">コメント</button>
+          <button @click="shareComment()">
+            コメント
+          </button>
         </div>
       </div>
     </div>
@@ -68,7 +65,6 @@
 
 <script>
 import firebase from "firebase/app";
-import { getAuthHeaders } from "~/utils/auth";
 
 export default {
   middleware: "authenticated",
@@ -90,13 +86,11 @@ export default {
     async loadData() {
       try {
         const tweetId = this.$route.params.tweetId;
-
         if (!tweetId) {
           alert("ツイートIDが見つかりません");
           this.$router.push("/");
           return;
         }
-
         await Promise.all([
           this.getTweetData(tweetId),
           this.getLikeCount(tweetId),
@@ -110,9 +104,8 @@ export default {
 
     async getTweetData(tweetId) {
       try {
-        const response = await this.$axios.get(`/tweet/${tweetId}`);
+        const response = await this.$axios.get(`/tweets/${tweetId}`);
         const tweetData = response.data.data;
-
         if (tweetData) {
           this.tweet = {
             tweet_id: tweetData.id,
@@ -128,7 +121,7 @@ export default {
 
     async getLikeCount(tweetId) {
       try {
-        const response = await this.$axios.get("/like");
+        const response = await this.$axios.get("/likes");
         const tweetLikeInfo = response.data.data[tweetId];
         this.likeCount = tweetLikeInfo ? tweetLikeInfo.like_count : 0;
       } catch (error) {
@@ -139,7 +132,9 @@ export default {
 
     async getComments(tweetId) {
       try {
-        const response = await this.$axios.get(`/comment/?tweet_id=${tweetId}`);
+        const response = await this.$axios.get(
+          `/comments/?tweet_id=${tweetId}`,
+        );
         this.comments = response.data.data.reverse();
       } catch (error) {
         console.error("Error getting comments:", error);
@@ -148,33 +143,27 @@ export default {
     },
 
     async likePost() {
-      if (!this.tweet) return;
-
+      if (!this.tweet) {
+        return;
+      }
       try {
-        const { headers } = await getAuthHeaders();
         const user = firebase.auth().currentUser;
+        // eslint-disable-next-line camelcase
         const user_name = user.displayName;
-
-        const likesResponse = await this.$axios.get("/like");
+        const likesResponse = await this.$axios.get("/likes");
         const existingLike = Object.entries(likesResponse.data.data).find(
           ([tweetIdKey, like]) => {
             return (
               like.users.includes(user_name) &&
-              tweetIdKey == this.tweet.tweet_id
+              String(tweetIdKey) === String(this.tweet.tweet_id)
             );
-          }
+          },
         );
-
         if (existingLike) {
-          await this.$axios.delete(`/like/${existingLike[0]}`, { headers });
+          await this.$axios.delete(`/likes/${existingLike[0]}`);
         } else {
-          await this.$axios.post(
-            "/like",
-            { tweet_id: this.tweet.tweet_id },
-            { headers }
-          );
+          await this.$axios.post("/likes", { tweet_id: this.tweet.tweet_id });
         }
-
         await this.getLikeCount(this.tweet.tweet_id);
       } catch (error) {
         console.error("Error liking post:", error);
@@ -183,15 +172,14 @@ export default {
     },
 
     async deleteTweet() {
-      if (!this.tweet) return;
-
+      if (!this.tweet) {
+        return;
+      }
       if (!confirm("本当に削除しますか？")) {
         return;
       }
-
       try {
-        const { headers } = await getAuthHeaders();
-        await this.$axios.delete(`/tweet/${this.tweet.tweet_id}`, { headers });
+        await this.$axios.delete(`/tweets/${this.tweet.tweet_id}`);
         alert("削除しました");
         this.$router.push("/");
       } catch (error) {
@@ -205,32 +193,25 @@ export default {
     },
 
     async shareComment() {
-      if (!this.tweet) return;
-
+      if (!this.tweet) {
+        return;
+      }
       if (!this.commentText.trim()) {
         alert("コメントを入力してください");
         return;
       }
-
       try {
-        const { headers } = await getAuthHeaders();
         const user = firebase.auth().currentUser;
-
-        await this.$axios.post(
-          "/comment",
-          {
-            tweet_id: this.tweet.tweet_id,
-            comment: this.commentText,
-          },
-          { headers }
-        );
+        await this.$axios.post("/comments", {
+          tweet_id: this.tweet.tweet_id,
+          comment: this.commentText,
+        });
 
         // コメントを先頭に追加
         this.comments.unshift({
           user_name: user.displayName,
           comment: this.commentText,
         });
-
         this.commentText = "";
       } catch (error) {
         console.error("Error sharing comment:", error);
@@ -290,31 +271,6 @@ export default {
 .logout-logo {
   width: 30px;
 }
-
-/* .post-form input {
-  border: 1px solid white;
-  background-color: transparent;
-  padding: 8px;
-  color: white;
-  outline: none;
-  border-radius: 10px;
-  width: 80%;
-  height: 100px;
-} */
-
-/* .share_button {
-  width: 85%;
-  text-align: right;
-}
-
-.share_button button {
-  background: #776882;
-  color: white;
-  padding: 10px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  margin-top: 10px;
-} */
 
 .post-list {
   margin-top: -65px;
@@ -389,18 +345,10 @@ td {
     margin-top: 40px;
   }
 
-  /* .post-form input {
-    width: 90%;
-  } */
-
   th,
   td {
     border: 1px solid white;
   }
-
-  /* .share_button {
-    width: 90%;
-  } */
 
   .comment-form input {
     width: 95%;

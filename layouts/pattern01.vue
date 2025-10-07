@@ -2,12 +2,20 @@
   <div class="contents_with">
     <header class="header">
       <nuxt-link to="/">
-        <img src="/images/logo.png" alt="Logo" class="logo" />
+        <img src="/images/logo.png" alt="Logo" class="logo">
       </nuxt-link>
       <nav>
         <ul class="header-nav">
-          <li><nuxt-link to="/register">新規登録</nuxt-link></li>
-          <li><nuxt-link to="/login">ログイン</nuxt-link></li>
+          <li>
+            <nuxt-link to="/register">
+              新規登録
+            </nuxt-link>
+          </li>
+          <li>
+            <nuxt-link to="/login">
+              ログイン
+            </nuxt-link>
+          </li>
         </ul>
       </nav>
     </header>

@@ -4,20 +4,22 @@
       <div class="left_contents-btn">
         <NuxtLink to="/" class="link-style">
           <div class="home-icon">
-            <img src="/images/home.png" alt="home-logo" class="home-logo" />
+            <img src="/images/home.png" alt="home-logo" class="home-logo">
             <p>ホーム</p>
           </div>
         </NuxtLink>
         <div class="logout-icon" @click="logout">
-          <img src="/images/logout.png" alt="logout-logo" class="logout-logo" />
+          <img src="/images/logout.png" alt="logout-logo" class="logout-logo">
           <p>ログアウト</p>
         </div>
       </div>
       <div class="post-form">
         <p>シェア</p>
-        <input type="text" v-model="tweetText" />
+        <input v-model="tweetText" type="text">
         <div class="share_button">
-          <button @click="shareTweet">シェアする</button>
+          <button @click="shareTweet">
+            シェアする
+          </button>
         </div>
       </div>
     </div>
@@ -33,20 +35,20 @@
               alt="heart-logo"
               class="heart-logo"
               @click="likePost(tweet.tweet_id)"
-            />
+            >
             <span>{{ tweet.likeCount }}</span>
             <img
               src="/images/cross.png"
               alt="cross-logo"
               class="cross-logo"
               @click="deleteTweet(tweet.tweet_id)"
-            />
+            >
             <NuxtLink :to="`/detail/${tweet.tweet_id}`" class="link-style">
               <img
                 src="/images/detail.png"
                 alt="detail-logo"
                 class="detail-logo"
-              />
+              >
             </NuxtLink>
             <p>{{ tweet.user_name }}:{{ tweet.tweet_text }}</p>
           </td>
@@ -58,7 +60,6 @@
 
 <script>
 import firebase from "firebase/app";
-import { getAuthHeaders } from "~/utils/auth";
 
 export default {
   middleware: "authenticated",
@@ -79,18 +80,17 @@ export default {
     async getTweets() {
       try {
         const [tweetsResponse, likesResponse] = await Promise.all([
-          this.$axios.get("/tweet"),
-          this.$axios.get("/like/"),
+          this.$axios.get("/tweets"),
+          this.$axios.get("/likes"),
         ]);
 
-        const tweetsWithLikes = tweetsResponse.data.data.map((tweet) => ({
+        const tweetsWithLikes = tweetsResponse.data.data.map(tweet => ({
           ...tweet,
           likeCount: this.getLikeDataForTweet(
             tweet.tweet_id,
-            likesResponse.data.data
+            likesResponse.data.data,
           ).like_count,
         }));
-
         this.tweets = tweetsWithLikes.reverse();
       } catch (error) {
         console.error(error);
@@ -108,13 +108,7 @@ export default {
 
     async shareTweet() {
       try {
-        const { headers } = await getAuthHeaders();
-        await this.$axios.post(
-          "/tweet",
-          { tweet_text: this.tweetText },
-          { headers }
-        );
-
+        await this.$axios.post("/tweets", { tweet_text: this.tweetText });
         this.tweetText = "";
         await this.getTweets();
       } catch (error) {
@@ -129,9 +123,7 @@ export default {
         return;
       }
       try {
-        const { headers } = await getAuthHeaders();
-
-        await this.$axios.delete(`/tweet/${tweetId}`, { headers });
+        await this.$axios.delete(`/tweets/${tweetId}`);
         await this.getTweets();
       } catch (error) {
         if (error.response?.status === 403) {
@@ -145,23 +137,23 @@ export default {
 
     async likePost(tweetId) {
       try {
-        const { headers } = await getAuthHeaders();
         const user = firebase.auth().currentUser;
+        // eslint-disable-next-line camelcase
         const user_name = user.displayName;
-
-        const likesResponse = await this.$axios.get("/like");
+        const likesResponse = await this.$axios.get("/likes");
         const existingLike = Object.entries(likesResponse.data.data).find(
           ([tweetIdKey, like]) => {
-            return like.users.includes(user_name) && tweetIdKey == tweetId;
-          }
+            return (
+              like.users.includes(user_name) &&
+              String(tweetIdKey) === String(tweetId)
+            );
+          },
         );
-
         if (existingLike) {
-          await this.$axios.delete(`/like/${existingLike[0]}`, { headers });
+          await this.$axios.delete(`/likes/${existingLike[0]}`);
         } else {
-          await this.$axios.post("/like", { tweet_id: tweetId }, { headers });
+          await this.$axios.post("/likes", { tweet_id: tweetId });
         }
-
         await this.getTweets();
       } catch (error) {
         console.error("Error liking post:", error);

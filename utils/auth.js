@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 
 /**
  * 認証ヘッダーを取得
- * @returns {Object} headers, uid を含むオブジェクト
+ * @returns {Object} idToken
  */
 
 export async function getAuthHeaders() {
@@ -13,14 +13,11 @@ export async function getAuthHeaders() {
   }
 
   const idToken = await user.getIdToken();
-  const uid = user.uid;
 
   return {
     headers: {
       Authorization: `Bearer ${idToken}`,
-      "X-User-UID": uid,
     },
-    uid,
     idToken,
   };
 }
@@ -29,7 +26,7 @@ export async function getAuthHeaders() {
  * 現在のユーザー名を取得
  * @returns {String} ユーザー名
  */
-export function getCurrentUserName() {
-  const user = firebase.auth().currentUser;
-  return user?.displayName || "ゲスト";
-}
+// export function getCurrentUserName() {
+//   const user = firebase.auth().currentUser;
+//   return user?.displayName || "ゲスト";
+// }

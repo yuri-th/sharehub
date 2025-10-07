@@ -2,7 +2,7 @@
   <div class="contents_with">
     <header class="header">
       <nuxt-link to="/">
-        <img src="/images/logo.png" alt="Logo" class="logo" />
+        <img src="/images/logo.png" alt="Logo" class="logo">
       </nuxt-link>
     </header>
     <nuxt />

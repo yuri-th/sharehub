@@ -1,19 +1,21 @@
 <template>
   <div class="register">
     <h3>新規登録</h3>
-    <input v-model="name" type="text" placeholder="ユーザーネーム" required />
-    <br />
-    <input v-model="email" type="email" placeholder="メールアドレス" required />
-    <br />
+    <input v-model="name" type="text" placeholder="ユーザーネーム" required>
+    <br>
+    <input v-model="email" type="email" placeholder="メールアドレス" required>
+    <br>
     <input
       v-model="password"
       type="password"
       placeholder="パスワード"
       required
-    />
-    <br />
-    <button @click.prevent="register" class="register_btn">新規登録</button>
-    <br />
+    >
+    <br>
+    <button class="register_btn" @click.prevent="register">
+      新規登録
+    </button>
+    <br>
   </div>
 </template>
 
@@ -35,21 +37,18 @@ export default {
     async register() {
       if (!this.name || !this.email || !this.password) {
         alert(
-          "ユーザーネーム、メールアドレスまたはパスワードが入力されていません。"
+          "ユーザーネーム、メールアドレスまたはパスワードが入力されていません。",
         );
         return;
       }
-
       try {
         // Firebaseでユーザーを登録
         const userCredential = await firebase
           .auth()
           .createUserWithEmailAndPassword(this.email, this.password);
-
         await userCredential.user.updateProfile({
           displayName: this.name,
         });
-
         const user = userCredential.user;
 
         // Laravelにユーザー情報を保存
@@ -59,7 +58,6 @@ export default {
         this.$router.push("/login");
       } catch (error) {
         console.error("ユーザー登録エラー:", error.message);
-
         if (error.code === "auth/email-already-in-use") {
           alert("このメールアドレスは既に使用されています。");
         } else if (error.code === "auth/weak-password") {
@@ -75,10 +73,8 @@ export default {
     async saveUserToLaravelApi(firebaseUser) {
       try {
         const idToken = await firebaseUser.getIdToken();
-        const uid = firebaseUser.uid;
-
         await this.$axios.post(
-          "/share",
+          "/users",
           {
             name: this.name,
             email: this.email,
@@ -86,14 +82,13 @@ export default {
           {
             headers: {
               Authorization: `Bearer ${idToken}`,
-              "X-User-UID": uid,
             },
-          }
+          },
         );
       } catch (error) {
         console.error(
           "Laravel登録エラー:",
-          error.response?.data || error.message
+          error.response?.data || error.message,
         );
         throw error;
       }

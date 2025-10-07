@@ -13,7 +13,7 @@ export default {
       storageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       messagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
-    }
+    },
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -35,7 +35,10 @@ export default {
   css: ["@/static/css/global.css", "normalize.css"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [{ src: "~/plugins/firebase.js", mode: "client" }],
+  plugins: [
+    { src: "~/plugins/firebase.js", mode: "client" },
+    { src: "~/plugins/axios.js", mode: "client" },
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -47,17 +50,17 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     "@nuxtjs/axios",
-    '@nuxtjs/dotenv',
+    "@nuxtjs/dotenv",
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: process.env.API_BASE_URL || 'http://localhost:3000'
+    baseURL: process.env.API_BASE_URL || "http://localhost:3000",
   },
 
-   // 環境変数の設定
+  // 環境変数の設定
   env: {
-    apiUrl: process.env.API_BASE_URL || 'http://localhost:3000'
+    apiUrl: process.env.API_BASE_URL || "http://localhost:3000",
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -66,5 +69,4 @@ export default {
   router: {
     middleware: "authenticated",
   },
-
 };
